@@ -1,10 +1,10 @@
-# youtube-transcript-plus
+# youtube-transcript-edge
 
-[![npm version](https://badge.fury.io/js/youtube-transcript-plus.svg)](https://badge.fury.io/js/youtube-transcript-plus)
+A JavaScript library to fetch transcripts from YouTube videos. Designed for edge environments like Cloudflare Workers.
 
-A Node.js library to fetch transcripts from YouTube videos. This package uses YouTube's unofficial API, so it may break if YouTube changes its internal structure.
+**Note:** This project was originally forked from [https://github.com/ericmmartin/youtube-transcript-plus](https://github.com/ericmmartin/youtube-transcript-plus), which only works in Node.js environments.
 
-**Note:** This project was originally forked from [https://github.com/Kakulukian/youtube-transcript](https://github.com/Kakulukian/youtube-transcript).
+This package uses YouTube's unofficial API, so it may break if YouTube changes its internal structure.
 
 ## Installation
 
@@ -269,5 +269,3 @@ We're planning the next major version! Vote on the features you'd like to see by
 Have a feature idea not listed here? [Open an issue](https://github.com/ericmmartin/youtube-transcript-plus/issues/new) and let us know!
 
 ## License
-
-**[MIT](LICENSE)** Licensed

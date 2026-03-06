@@ -9,13 +9,7 @@ This package uses YouTube's unofficial API, so it may break if YouTube changes i
 ## Installation
 
 ```bash
-$ npm install youtube-transcript-plus
-```
-
-or
-
-```bash
-$ yarn add youtube-transcript-plus
+$ bun install youtube-transcript-plus
 ```
 
 ## Usage

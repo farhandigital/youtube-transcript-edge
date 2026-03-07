@@ -79,7 +79,7 @@ describe('defaultFetch', () => {
 
   it('should not include Accept-Language header when lang is not provided', async () => {
     const mockResponse = { ok: true, status: 200 };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    (global.fetch as Mock).mockResolvedValue(mockResponse);
 
     await defaultFetch({
       url: 'https://example.com',

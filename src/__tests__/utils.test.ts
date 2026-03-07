@@ -1,6 +1,6 @@
-import { vi, type Mock } from 'vitest';
-import { defaultFetch, retrieveVideoId, decodeXmlEntities } from '../utils';
+import { type Mock, vi } from 'vitest';
 import { YoutubeTranscriptInvalidVideoIdError } from '../errors';
+import { decodeXmlEntities, defaultFetch, retrieveVideoId } from '../utils';
 
 // Mock global fetch
 global.fetch = vi.fn() as unknown as typeof fetch;

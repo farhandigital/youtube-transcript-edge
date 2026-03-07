@@ -1,5 +1,5 @@
-import type { CacheStrategy } from '../types';
 import { DEFAULT_CACHE_TTL } from '../constants';
+import type { CacheStrategy } from '../types';
 
 export class InMemoryCache implements CacheStrategy {
 	private cache = new Map<string, { value: string; expires: number }>();

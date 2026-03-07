@@ -1,18 +1,18 @@
 import { DEFAULT_USER_AGENT, RE_XML_TRANSCRIPT } from './constants';
-import { retrieveVideoId, defaultFetch, decodeXmlEntities } from './utils';
 import {
-	YoutubeTranscriptVideoUnavailableError,
-	YoutubeTranscriptTooManyRequestError,
 	YoutubeTranscriptDisabledError,
 	YoutubeTranscriptNotAvailableError,
 	YoutubeTranscriptNotAvailableLanguageError,
+	YoutubeTranscriptTooManyRequestError,
+	YoutubeTranscriptVideoUnavailableError,
 } from './errors';
 import type {
+	FetchParams,
 	TranscriptConfig,
 	TranscriptResponse,
-	FetchParams,
 	YouTubePlayerResponse,
 } from './types';
+import { decodeXmlEntities, defaultFetch, retrieveVideoId } from './utils';
 
 /**
  * Implementation notes:
@@ -207,15 +207,14 @@ export class YoutubeTranscript {
 	}
 }
 
+export { FsCache, InMemoryCache } from './cache';
+export * from './errors';
 export type {
 	CacheStrategy,
+	FetchParams,
 	TranscriptConfig,
 	TranscriptResponse,
-	FetchParams,
 } from './types';
-export { InMemoryCache, FsCache } from './cache';
-
-export * from './errors';
 
 // Export the static method directly for convenience
 export const fetchTranscript = YoutubeTranscript.fetchTranscript;

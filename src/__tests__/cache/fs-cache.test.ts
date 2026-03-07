@@ -1,6 +1,6 @@
-import { FsCache } from '../../cache/fs-cache';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { FsCache } from '../../cache/fs-cache';
 
 describe('FsCache', () => {
 	const cacheDir = './test-cache';

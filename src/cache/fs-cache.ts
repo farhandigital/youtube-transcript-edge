@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { CacheStrategy } from '../types';
 import { DEFAULT_CACHE_TTL } from '../constants';
+import type { CacheStrategy } from '../types';
 
 function sanitizeKey(key: string): string {
 	return key.replace(/[^a-zA-Z0-9_-]/g, '_');

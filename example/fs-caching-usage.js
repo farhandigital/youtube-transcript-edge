@@ -1,4 +1,4 @@
-import { fetchTranscript, FsCache } from 'youtube-transcript-plus';
+import { FsCache, fetchTranscript } from 'youtube-transcript-plus';
 
 async function main() {
 	try {

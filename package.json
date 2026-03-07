@@ -53,12 +53,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ericmmartin/youtube-transcript-plus.git"
+    "url": "git+https://github.com/InvictusNavarchus/youtube-transcript-edge.git"
   },
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/ericmmartin/youtube-transcript-plus",
+  "homepage": "https://github.com/InvictusNavarchus/youtube-transcript-edge",
   "engines": {
     "node": ">=18.0.0"
   }

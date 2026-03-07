@@ -1,17 +1,18 @@
+import { vi, type Mock } from 'vitest';
 import { defaultFetch, retrieveVideoId, decodeXmlEntities } from '../utils';
 import { YoutubeTranscriptInvalidVideoIdError } from '../errors';
 
 // Mock global fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn() as unknown as typeof fetch;
 
 describe('defaultFetch', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should make GET request by default', async () => {
     const mockResponse = { ok: true, status: 200 };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    (global.fetch as Mock).mockResolvedValue(mockResponse);
 
     await defaultFetch({
       url: 'https://example.com',
@@ -30,7 +31,7 @@ describe('defaultFetch', () => {
 
   it('should make POST request with body when specified', async () => {
     const mockResponse = { ok: true, status: 200 };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    (global.fetch as Mock).mockResolvedValue(mockResponse);
 
     const testBody = JSON.stringify({ test: 'data' });
     await defaultFetch({
@@ -53,7 +54,7 @@ describe('defaultFetch', () => {
 
   it('should merge custom headers with default headers', async () => {
     const mockResponse = { ok: true, status: 200 };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    (global.fetch as Mock).mockResolvedValue(mockResponse);
 
     await defaultFetch({
       url: 'https://example.com',
@@ -78,7 +79,7 @@ describe('defaultFetch', () => {
 
   it('should not include Accept-Language header when lang is not provided', async () => {
     const mockResponse = { ok: true, status: 200 };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    (global.fetch as Mock).mockResolvedValue(mockResponse);
 
     await defaultFetch({
       url: 'https://example.com',
@@ -95,7 +96,7 @@ describe('defaultFetch', () => {
 
   it('should use default user agent when not provided', async () => {
     const mockResponse = { ok: true, status: 200 };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    (global.fetch as Mock).mockResolvedValue(mockResponse);
 
     await defaultFetch({
       url: 'https://example.com',
@@ -111,7 +112,7 @@ describe('defaultFetch', () => {
 
   it('should not include body for GET requests even if provided', async () => {
     const mockResponse = { ok: true, status: 200 };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    (global.fetch as Mock).mockResolvedValue(mockResponse);
 
     await defaultFetch({
       url: 'https://example.com',

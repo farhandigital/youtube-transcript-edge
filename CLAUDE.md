@@ -4,19 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**youtube-transcript-plus** is a Node.js library that fetches YouTube video transcripts using YouTube's unofficial Innertube API. The library provides multiple caching strategies, language support, custom fetch functions, and comprehensive error handling.
+**youtube-transcript-edge** is a JavaScript library that fetches YouTube video transcripts using YouTube's unofficial Innertube API. Designed for edge environments (Cloudflare Workers, Vercel Edge, Deno, Bun), the library provides caching strategies, language support, custom fetch functions, and comprehensive error handling.
 
 ## Development Commands
 
 ### Building and Testing
-- `npm run build` - Build the project using Rollup
-- `npm test` - Run Jest test suite with coverage
-- `npm run test:watch` - Run tests in watch mode
-- `npm run format` - Format code using Prettier
+- `bun run build` - Build the project using Vite
+- `bun run test` - Run Vitest test suite
+- `bun run test:watch` - Run tests in watch mode
+- `bun run format` - Format code using Biome
+- `bun run lint` - Lint code using Biome
+- `bun run typecheck` - Run TypeScript type checking (`tsc --noEmit`)
 
 ### Code Quality
-- `npm run prepare` - Set up Husky git hooks
-- The project uses lint-staged with ESLint and Prettier on commit
+- `bun run prepare` - Set up Lefthook git hooks
+- The project uses Lefthook to automatically run Biome formatting checks on commit
 
 ## Architecture
 
@@ -51,9 +53,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Caching System (`src/cache/`)
 
-**Two built-in implementations:**
+**Built-in implementation:**
 - `InMemoryCache` - Memory-based with TTL support
-- `FsCache` - File system-based with TTL support
 
 **Custom Strategy Support:**
 - Implement `CacheStrategy` interface with `get()` and `set()` methods
@@ -77,38 +78,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **TypeScript (`tsconfig.json`)**
 - Target ES2015, ESNext modules
-- Declarations generated in `dist/`
-- Strict mode disabled for compatibility
+- Declarations generated via `vite-plugin-dts`
+- Strictly typed
 
-**Rollup (`rollup.config.js`)**
+**Vite (`vite.config.ts`)**
 - ESM output format
-- TypeScript compilation with declaration generation
-- External dependencies: `fs/promises`, `path`
+- Bundle output to `dist/`
 
-**Jest (`jest.config.js`)**
-- ts-jest preset for TypeScript support
-- Coverage reports in `coverage/`
-- Test pattern: `**/*.test.ts`
+**Vitest (`vite.config.ts`)**
+- Test runners configured for fast execution
 
 ## Code Style
 
-**Prettier Configuration:**
-- Single quotes, semicolons
-- 2-space indentation
-- 100 character line width
-- Trailing commas
+**Biome Configuration (`biome.json`)**
+- Handles both linting and formatting
+- Replaces ESLint and Prettier
 
 **Git Hooks:**
-- Pre-commit: ESLint fix + Prettier format on staged TypeScript files
-- Husky manages git hooks
+- Pre-commit: Biome format checks on staged files
+- Lefthook manages git hooks
 
 ## Testing Strategy
 
-Tests located in `src/__tests__/` with separate directories for:
-- Cache implementations (`cache/`)
-- Main functionality (`index.test.ts`)
-
-Run individual test files: `npm test -- --testPathPattern=cache`
+Tests located in `src/__tests__/`:
+- Use Vitest (`describe`, `it`, `expect`)
 
 ## Common Patterns
 

@@ -21,7 +21,7 @@ const VIDEO_ID = 'TESTVIDEOID';
 const API_KEY = 'test-key';
 
 const loadFixture = (name: string): string => fs.readFileSync(path.join(fixturesDir, name), 'utf8');
-const loadJsonFixture = (name: string): unknown => JSON.parse(loadFixture(name));
+const loadJsonFixture = (name: string): object => JSON.parse(loadFixture(name)) as object;
 
 const mockWatchPage = (protocol = 'https', body?: string) =>
   nock(`${protocol}://www.youtube.com`)
@@ -29,7 +29,7 @@ const mockWatchPage = (protocol = 'https', body?: string) =>
     .query({ v: VIDEO_ID })
     .reply(200, body ?? loadFixture('watch.html'));
 
-const mockPlayer = (body: unknown, protocol = 'https') =>
+const mockPlayer = (body: object, protocol = 'https') =>
   nock(`${protocol}://www.youtube.com`)
     .post('/youtubei/v1/player')
     .query({ key: API_KEY })

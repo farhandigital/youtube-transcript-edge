@@ -40,12 +40,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/InvictusNavarchus/youtube-transcript-edge.git"
+    "url": "git+https://github.com/farhandigital/youtube-transcript-edge.git"
   },
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/InvictusNavarchus/youtube-transcript-edge",
+  "homepage": "https://github.com/farhandigital/youtube-transcript-edge",
   "engines": {
     "node": ">=18.0.0"
   }

@@ -239,5 +239,3 @@ The library throws the following errors:
 - **`YoutubeTranscriptInvalidVideoIdError`**: The provided video ID or URL is invalid.
 
 ## License
-
-MIT

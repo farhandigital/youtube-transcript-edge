@@ -1,13 +1,13 @@
 {
-	"name": "youtube-transcript-plus",
+	"name": "youtube-transcript-edge",
 	"version": "1.2.0",
 	"description": "Fetch transcript from a YouTube video",
 	"type": "module",
-	"main": "dist/youtube-transcript-plus.js",
+	"main": "dist/youtube-transcript-edge.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/youtube-transcript-plus.js",
+			"import": "./dist/youtube-transcript-edge.js",
 			"types": "./dist/index.d.ts"
 		}
 	},

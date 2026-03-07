@@ -11,8 +11,8 @@ export default defineConfig({
 	build: {
 		lib: {
 			entry: 'src/index.ts', // same as rollup's `input`
-			name: 'YoutubeTranscriptPlus',
-			fileName: 'youtube-transcript-plus',
+			name: 'youtube-transcript-edge',
+			fileName: 'youtube-transcript-edge',
 			formats: ['es'], // 'esm' in rollup = 'es' in vite
 		},
 		rollupOptions: {

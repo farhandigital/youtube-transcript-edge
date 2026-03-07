@@ -4,8 +4,13 @@
 	"description": "Fetch transcript from a YouTube video",
 	"type": "module",
 	"main": "dist/youtube-transcript-plus.js",
-	"module": "dist/youtube-transcript-plus.js",
 	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/youtube-transcript-plus.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
 	"scripts": {
 		"build": "vite build",
 		"format": "biome format --write .",

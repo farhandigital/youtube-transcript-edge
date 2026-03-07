@@ -7,7 +7,7 @@ import {
   YoutubeTranscriptNotAvailableError,
   YoutubeTranscriptNotAvailableLanguageError,
 } from './errors';
-import { TranscriptConfig, TranscriptResponse, FetchParams } from './types';
+import type { TranscriptConfig, TranscriptResponse, FetchParams, YouTubePlayerResponse } from './types';
 
 /**
  * Implementation notes:
@@ -99,7 +99,7 @@ export class YoutubeTranscript {
       throw new YoutubeTranscriptVideoUnavailableError(identifier);
     }
 
-    const playerJson: any = await playerRes.json();
+    const playerJson = (await playerRes.json()) as YouTubePlayerResponse;
 
     const tracklist =
       playerJson?.captions?.playerCaptionsTracklistRenderer ??
@@ -125,11 +125,11 @@ export class YoutubeTranscript {
     }
 
     // Respect requested language or fallback to first track
-    const selectedTrack = lang ? tracks.find((t: any) => t.languageCode === lang) : tracks[0];
+    const selectedTrack = lang ? tracks.find((t) => t.languageCode === lang) : tracks[0];
 
     if (!selectedTrack) {
-      const available = tracks.map((t: any) => t.languageCode).filter(Boolean);
-      throw new YoutubeTranscriptNotAvailableLanguageError(lang!, available, identifier);
+      const available = tracks.map((t) => t.languageCode).filter(Boolean);
+      throw new YoutubeTranscriptNotAvailableLanguageError(lang as string, available, identifier);
     }
 
     // 4) Build transcript URL; prefer XML by stripping fmt if present

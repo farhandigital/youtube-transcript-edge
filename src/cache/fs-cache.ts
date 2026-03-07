@@ -1,6 +1,6 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { CacheStrategy } from '../types';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import type { CacheStrategy } from '../types';
 import { DEFAULT_CACHE_TTL } from '../constants';
 
 function sanitizeKey(key: string): string {

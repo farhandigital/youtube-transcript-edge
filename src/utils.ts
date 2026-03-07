@@ -1,6 +1,6 @@
 import { DEFAULT_USER_AGENT, RE_YOUTUBE } from './constants';
 import { YoutubeTranscriptInvalidVideoIdError } from './errors';
-import { FetchParams } from './types';
+import type { FetchParams } from './types';
 
 const RE_VIDEO_ID = /^[a-zA-Z0-9_-]{11}$/;
 
@@ -24,7 +24,7 @@ export function retrieveVideoId(videoId: string): string {
     return videoId;
   }
   const matchId = videoId.match(RE_YOUTUBE);
-  if (matchId && matchId.length) {
+  if (matchId?.length) {
     return matchId[1];
   }
   throw new YoutubeTranscriptInvalidVideoIdError();

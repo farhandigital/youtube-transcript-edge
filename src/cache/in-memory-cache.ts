@@ -1,4 +1,4 @@
-import { CacheStrategy } from '../types';
+import type { CacheStrategy } from '../types';
 import { DEFAULT_CACHE_TTL } from '../constants';
 
 export class InMemoryCache implements CacheStrategy {

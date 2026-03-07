@@ -13,7 +13,7 @@ import {
   YoutubeTranscriptVideoUnavailableError,
 } from '../errors';
 import { retrieveVideoId } from '../utils';
-import { CacheStrategy } from '../types';
+import type { CacheStrategy } from '../types';
 
 const fixturesDir = path.join(process.cwd(), 'src', '__tests__', 'fixtures');
 

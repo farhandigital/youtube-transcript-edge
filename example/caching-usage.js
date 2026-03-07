@@ -1,4 +1,4 @@
-import { fetchTranscript, InMemoryCache } from 'youtube-transcript-plus';
+import { fetchTranscript, InMemoryCache } from 'youtube-transcript-edge';
 
 async function main() {
 	try {

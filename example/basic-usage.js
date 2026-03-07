@@ -1,4 +1,4 @@
-import { fetchTranscript } from 'youtube-transcript-plus';
+import { fetchTranscript } from 'youtube-transcript-edge';
 
 async function main() {
 	try {

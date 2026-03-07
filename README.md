@@ -2,14 +2,14 @@
 
 A JavaScript library to fetch transcripts from YouTube videos. Designed for edge environments like Cloudflare Workers.
 
-**Note:** This project was originally forked from [https://github.com/ericmmartin/youtube-transcript-plus](https://github.com/ericmmartin/youtube-transcript-plus), which only works in Node.js environments.
+**Note:** This project was originally forked from [https://github.com/ericmmartin/youtube-transcript-plus](https://github.com/ericmmartin/youtube-transcript-plus), which only works in Node.js environments. This edge-compatible version removes Node.js specific modules (like `fs`, `path`) to run perfectly on Cloudflare Workers, Vercel Edge, Deno, and Bun.
 
 This package uses YouTube's unofficial API, so it may break if YouTube changes its internal structure.
 
 ## Installation
 
 ```bash
-$ bun install youtube-transcript-plus
+$ bun add youtube-transcript-edge
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ $ bun install youtube-transcript-plus
 ### Basic Usage
 
 ```javascript
-import { fetchTranscript } from 'youtube-transcript-plus';
+import { fetchTranscript } from 'youtube-transcript-edge';
 
 // Fetch transcript using default settings
 fetchTranscript('videoId_or_URL').then(console.log).catch(console.error);
@@ -109,12 +109,12 @@ fetchTranscript('videoId_or_URL', {
 
 ### Caching
 
-You can provide a custom caching strategy by implementing the `CacheStrategy` interface. The library also provides default implementations for in-memory and file system caching.
+You can provide a custom caching strategy by implementing the `CacheStrategy` interface. The library also provides a default implementation for in-memory caching. Note that `FsCache` is not available in this edge-compatible version.
 
 #### In-Memory Cache
 
 ```typescript
-import { fetchTranscript, InMemoryCache } from 'youtube-transcript-plus';
+import { fetchTranscript, InMemoryCache } from 'youtube-transcript-edge';
 
 fetchTranscript('videoId_or_URL', {
   lang: 'en',
@@ -125,24 +125,12 @@ fetchTranscript('videoId_or_URL', {
   .catch(console.error);
 ```
 
-#### File System Cache
-
-```typescript
-import { fetchTranscript, FsCache } from 'youtube-transcript-plus';
-
-fetchTranscript('videoId_or_URL', {
-  cache: new FsCache('./my-cache-dir', 86400000), // 1 day TTL
-})
-  .then(console.log)
-  .catch(console.error);
-```
-
 ### Custom Caching
 
 If the default implementations don’t meet your needs, you can implement your own caching strategy:
 
 ```typescript
-import { fetchTranscript, CacheStrategy } from 'youtube-transcript-plus';
+import { fetchTranscript, CacheStrategy } from 'youtube-transcript-edge';
 
 class CustomCache implements CacheStrategy {
   async get(key: string): Promise<string | null> {
@@ -171,7 +159,7 @@ import {
   YoutubeTranscriptDisabledError,
   YoutubeTranscriptNotAvailableError,
   YoutubeTranscriptNotAvailableLanguageError,
-} from 'youtube-transcript-plus';
+} from 'youtube-transcript-edge';
 
 fetchTranscript('videoId_or_URL')
   .then(console.log)
@@ -196,10 +184,9 @@ The repository includes several example files in the `example/` directory to dem
 
 1. **`basic-usage.js`**: Demonstrates the simplest way to fetch a transcript using the default settings.
 2. **`caching-usage.js`**: Shows how to use the `InMemoryCache` to cache transcripts with a 30-minute TTL.
-3. **`fs-caching-usage.js`**: Demonstrates how to use the `FsCache` to cache transcripts on the file system with a 1-day TTL.
-4. **`language-usage.js`**: Shows how to fetch a transcript in a specific language (e.g., French).
-5. **`proxy-usage.js`**: Demonstrates how to use a proxy server to fetch transcripts, which can be useful for bypassing rate limits or accessing restricted content.
-6. **`custom-fetch-usage.js`**: Shows how to use all three custom fetch functions (`videoFetch`, `playerFetch`, `transcriptFetch`) with logging and custom headers.
+3. **`language-usage.js`**: Shows how to fetch a transcript in a specific language (e.g., French).
+4. **`proxy-usage.js`**: Demonstrates how to use a proxy server to fetch transcripts, which can be useful for bypassing rate limits or accessing restricted content.
+5. **`custom-fetch-usage.js`**: Shows how to use all three custom fetch functions (`videoFetch`, `playerFetch`, `transcriptFetch`) with logging and custom headers.
 
 These examples can be found in the `example/` directory of the repository.
 
@@ -213,7 +200,7 @@ import type {
   TranscriptResponse,
   FetchParams,
   CacheStrategy,
-} from 'youtube-transcript-plus';
+} from 'youtube-transcript-edge';
 ```
 
 ### API
@@ -252,3 +239,5 @@ The library throws the following errors:
 - **`YoutubeTranscriptInvalidVideoIdError`**: The provided video ID or URL is invalid.
 
 ## License
+
+MIT

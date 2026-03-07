@@ -1,7 +1,7 @@
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import { fetchTranscript } from 'youtube-transcript-plus';
+import { fetchTranscript } from 'youtube-transcript-edge';
 
-// npm install https-proxy-agent youtube-transcript-plus
+// npm install https-proxy-agent youtube-transcript-edge
 // Enter a valid proxy URL below
 const proxyUrl = 'YOUR_PROXY_URL';
 

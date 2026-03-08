@@ -61,17 +61,14 @@ export async function fetchTranscript(
 	const xml = await fetchTranscriptXml(transcriptUrl, identifier, config);
 	const transcript = parseTranscriptXml(xml, identifier);
 
-	// Extract metadata if requested
-	const metadata = config?.includeMetadata
-		? extractVideoMetadata(playerJson, identifier)
-		: null;
-
 	// Handle format conversion
 	switch (config?.format) {
 		case 'json': {
-			return config?.includeMetadata
-				? { transcript, metadata: metadata! }
-				: transcript;
+			if (config?.includeMetadata) {
+				const metadata = extractVideoMetadata(playerJson, identifier);
+				return { transcript, metadata };
+			}
+			return transcript;
 		}
 		case 'srt': {
 			return jsonTranscriptToSrt(transcript);
@@ -83,9 +80,11 @@ export async function fetchTranscript(
 			return jsonTranscriptToPlaintext(transcript);
 		}
 		default: {
-			return config?.includeMetadata
-				? { transcript, metadata: metadata! }
-				: transcript;
+			if (config?.includeMetadata) {
+				const metadata = extractVideoMetadata(playerJson, identifier);
+				return { transcript, metadata };
+			}
+			return transcript;
 		}
 	}
 }

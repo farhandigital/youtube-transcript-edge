@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { YoutubeTranscriptNotAvailableError } from '../errors';
-import type { CaptionTrack, TranscriptResponse } from '../types';
+import type { TranscriptResponse } from '../types';
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
@@ -15,8 +15,6 @@ interface TranscriptTextNode {
 
 export function parseTranscriptXml(
 	body: string,
-	lang: string | undefined,
-	track: CaptionTrack,
 	identifier: string,
 ): TranscriptResponse[] {
 	const parsed = parser.parse(body);
@@ -30,7 +28,6 @@ export function parseTranscriptXml(
 		text: String(m['#text'] ?? ''),
 		duration: parseFloat(m.dur),
 		offset: parseFloat(m.start),
-		lang: lang ?? track.languageCode,
 	}));
 }
 

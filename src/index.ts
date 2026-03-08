@@ -45,7 +45,7 @@ export async function fetchTranscript(
 	const track = selectTrack(tracks, lang, identifier);
 	const transcriptUrl = buildTranscriptUrl(track, identifier);
 	const xml = await fetchTranscriptXml(transcriptUrl, identifier, config);
-	const transcript = parseTranscriptXml(xml, lang, track, identifier);
+	const transcript = parseTranscriptXml(xml, identifier);
 
 	switch (config?.format) {
 		case 'json':

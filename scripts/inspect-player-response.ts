@@ -40,7 +40,6 @@ Example:
 
 const videoId = args.find((a) => !a.startsWith('--'));
 const captionsOnly = args.includes('--captions-only');
-const useHttp = args.includes('--http');
 
 if (!videoId) {
 	console.error('Error: No video ID provided.');

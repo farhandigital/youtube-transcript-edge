@@ -19,12 +19,21 @@ import type {
 	TranscriptResponse,
 	TranscriptWithMetadata,
 } from './types';
-import { extractVideoMetadata, retrieveVideoId } from './utils';
+import {
+	extractVideoMetadata,
+	metadataObjToYaml,
+	retrieveVideoId,
+} from './utils';
 
 export async function fetchTranscript(
 	videoId: string,
 	config: TranscriptConfig & { format: 'json'; includeMetadata: true },
 ): Promise<TranscriptWithMetadata>;
+
+export async function fetchTranscript(
+	videoId: string,
+	config: TranscriptConfig & { format: 'text'; includeMetadata: true },
+): Promise<string>;
 
 export async function fetchTranscript(
 	videoId: string,
@@ -77,6 +86,12 @@ export async function fetchTranscript(
 			return jsonTranscriptToVtt(transcript);
 		}
 		case 'text': {
+			if (config?.includeMetadata) {
+				const metadata = extractVideoMetadata(playerJson, identifier);
+				const yamlMetadata = metadataObjToYaml(metadata);
+				const plaintextTranscript = jsonTranscriptToPlaintext(transcript);
+				return `${yamlMetadata}\n\n${plaintextTranscript}`;
+			}
 			return jsonTranscriptToPlaintext(transcript);
 		}
 		default: {

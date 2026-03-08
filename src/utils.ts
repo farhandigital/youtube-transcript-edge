@@ -82,3 +82,21 @@ export function extractVideoMetadata(
 		videoId,
 	};
 }
+
+export function metadataObjToYaml(metadata: VideoMetadata): string {
+	const yamlLines = ['---'];
+	for (const [key, value] of Object.entries(metadata)) {
+		if (value !== undefined) {
+			if (Array.isArray(value)) {
+				yamlLines.push(`${key}:`);
+				value.forEach((item) => {
+					yamlLines.push(`  - ${item}`);
+				});
+			} else {
+				yamlLines.push(`${key}: ${value}`);
+			}
+		}
+	}
+	yamlLines.push('---');
+	return yamlLines.join('\n');
+}

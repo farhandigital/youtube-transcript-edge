@@ -10,7 +10,7 @@ import {
 	YoutubeTranscriptTooManyRequestError,
 	YoutubeTranscriptVideoUnavailableError,
 } from '../errors';
-import { fetchTranscript, YoutubeTranscript } from '../index';
+import { fetchTranscript } from '../index';
 import { retrieveVideoId } from '../utils';
 
 const fixturesDir = path.join(process.cwd(), 'src', '__tests__', 'fixtures');
@@ -60,14 +60,13 @@ afterAll(() => {
 	global.fetch = originalFetch;
 });
 
-describe('YoutubeTranscript', () => {
+describe('fetchTranscript', () => {
 	it('should fetch transcript successfully', async () => {
 		mockWatchPage();
 		mockPlayer(loadJsonFixture('player-success.json'));
 		mockTranscript();
 
-		const transcriptFetcher = new YoutubeTranscript();
-		const transcript = await transcriptFetcher.fetchTranscript(VIDEO_ID);
+		const transcript = await fetchTranscript(VIDEO_ID);
 
 		expect(transcript).toEqual([
 			{ text: 'Hello world', duration: 1.5, offset: 0, lang: 'en' },
@@ -80,8 +79,7 @@ describe('YoutubeTranscript', () => {
 		mockPlayer(loadJsonFixture('player-success.json'));
 		mockTranscript('https', 'transcript-entities.xml');
 
-		const transcriptFetcher = new YoutubeTranscript();
-		const transcript = await transcriptFetcher.fetchTranscript(VIDEO_ID);
+		const transcript = await fetchTranscript(VIDEO_ID);
 
 		expect(transcript).toEqual([
 			{ text: 'rock & roll', duration: 1.5, offset: 0, lang: 'en' },
@@ -90,9 +88,8 @@ describe('YoutubeTranscript', () => {
 	});
 
 	it('should throw YoutubeTranscriptInvalidVideoIdError when video is invalid', async () => {
-		const transcriptFetcher = new YoutubeTranscript();
 		const videoId = 'invalidVideoId';
-		await expect(transcriptFetcher.fetchTranscript(videoId)).rejects.toThrow(
+		await expect(fetchTranscript(videoId)).rejects.toThrow(
 			YoutubeTranscriptInvalidVideoIdError,
 		);
 	});
@@ -101,8 +98,7 @@ describe('YoutubeTranscript', () => {
 		mockWatchPage();
 		mockPlayer(loadJsonFixture('player-disabled.json'));
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptDisabledError,
 		);
 	});
@@ -111,8 +107,7 @@ describe('YoutubeTranscript', () => {
 		mockWatchPage();
 		mockPlayer(loadJsonFixture('player-success.json'));
 
-		const transcriptFetcher = new YoutubeTranscript({ lang: 'fr' });
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID, { lang: 'fr' })).rejects.toThrow(
 			YoutubeTranscriptNotAvailableLanguageError,
 		);
 	});
@@ -122,8 +117,11 @@ describe('YoutubeTranscript', () => {
 		mockPlayer(loadJsonFixture('player-success.json'), 'http');
 		mockTranscript('http');
 
-		const transcriptFetcher = new YoutubeTranscript();
-		const transcript = await transcriptFetcher.fetchTranscript(VIDEO_ID);
+		const transcript = await fetchTranscript(VIDEO_ID, {
+			videoFetch: async ({ url }) => {
+				return fetch(url.replace('https://', 'http://'));
+			},
+		});
 
 		expect(transcript.length).toBeGreaterThan(0);
 		expect(nock.isDone()).toBe(true);
@@ -159,13 +157,11 @@ describe('YoutubeTranscript', () => {
 				Promise.resolve('<text start="0" dur="1.5">Hello world</text>'),
 		});
 
-		const transcriptFetcher = new YoutubeTranscript({
+		const result = await fetchTranscript('dQw4w9WgXcQ', {
 			playerFetch: mockPlayerFetch,
 			videoFetch: mockVideoFetch,
 			transcriptFetch: mockTranscriptFetch,
 		});
-
-		const result = await transcriptFetcher.fetchTranscript('dQw4w9WgXcQ');
 
 		expect(mockPlayerFetch).toHaveBeenCalledWith({
 			url: expect.stringContaining('youtubei/v1/player'),
@@ -206,14 +202,12 @@ describe('YoutubeTranscript', () => {
 				playabilityStatus: { status: 'OK' },
 			});
 
-		const transcriptFetcher = new YoutubeTranscript({
+		const result = await fetchTranscript('dQw4w9WgXcQ', {
 			videoFetch: mockVideoFetch,
 			transcriptFetch: mockTranscriptFetch,
 			lang: 'fr',
 			userAgent: 'CustomAgent/1.0',
 		});
-
-		const result = await transcriptFetcher.fetchTranscript('dQw4w9WgXcQ');
 
 		expect(mockVideoFetch).toHaveBeenCalledWith({
 			url: expect.stringContaining('youtube.com/watch'),
@@ -227,30 +221,6 @@ describe('YoutubeTranscript', () => {
 		});
 		expect(result).toEqual([
 			{ text: 'Custom transcript', duration: 2.0, offset: 0, lang: 'fr' },
-		]);
-	});
-
-	it('should work via static fetchTranscript method', async () => {
-		mockWatchPage();
-		mockPlayer(loadJsonFixture('player-success.json'));
-		mockTranscript();
-
-		const transcript = await YoutubeTranscript.fetchTranscript(VIDEO_ID);
-		expect(transcript).toEqual([
-			{ text: 'Hello world', duration: 1.5, offset: 0, lang: 'en' },
-			{ text: 'Second line', duration: 2.0, offset: 1.5, lang: 'en' },
-		]);
-	});
-
-	it('should work via convenience fetchTranscript export', async () => {
-		mockWatchPage();
-		mockPlayer(loadJsonFixture('player-success.json'));
-		mockTranscript();
-
-		const transcript = await fetchTranscript(VIDEO_ID);
-		expect(transcript).toEqual([
-			{ text: 'Hello world', duration: 1.5, offset: 0, lang: 'en' },
-			{ text: 'Second line', duration: 2.0, offset: 1.5, lang: 'en' },
 		]);
 	});
 });
@@ -305,12 +275,11 @@ describe('retrieveVideoId', () => {
 	});
 });
 
-describe('YoutubeTranscript Error Handling', () => {
+describe('Error Handling', () => {
 	it('should throw YoutubeTranscriptTooManyRequestError when too many requests are made', async () => {
 		mockWatchPage('https', loadFixture('watch-recaptcha.html'));
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptTooManyRequestError,
 		);
 	});
@@ -319,8 +288,7 @@ describe('YoutubeTranscript Error Handling', () => {
 		mockWatchPage();
 		mockPlayer(loadJsonFixture('player-not-available.json'));
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptNotAvailableError,
 		);
 	});
@@ -331,8 +299,7 @@ describe('YoutubeTranscript Error Handling', () => {
 			.query({ v: VIDEO_ID })
 			.reply(404);
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptVideoUnavailableError,
 		);
 	});
@@ -344,8 +311,7 @@ describe('YoutubeTranscript Error Handling', () => {
 			.query({ key: API_KEY })
 			.reply(500);
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptVideoUnavailableError,
 		);
 	});
@@ -358,8 +324,7 @@ describe('YoutubeTranscript Error Handling', () => {
 			.query({ lang: 'en', v: VIDEO_ID })
 			.reply(429);
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptTooManyRequestError,
 		);
 	});
@@ -372,8 +337,7 @@ describe('YoutubeTranscript Error Handling', () => {
 			.query({ lang: 'en', v: VIDEO_ID })
 			.reply(500);
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptNotAvailableError,
 		);
 	});
@@ -386,8 +350,7 @@ describe('YoutubeTranscript Error Handling', () => {
 			.query({ lang: 'en', v: VIDEO_ID })
 			.reply(200, '<transcript></transcript>');
 
-		const transcriptFetcher = new YoutubeTranscript();
-		await expect(transcriptFetcher.fetchTranscript(VIDEO_ID)).rejects.toThrow(
+		await expect(fetchTranscript(VIDEO_ID)).rejects.toThrow(
 			YoutubeTranscriptNotAvailableError,
 		);
 	});
@@ -396,9 +359,8 @@ describe('YoutubeTranscript Error Handling', () => {
 		mockWatchPage();
 		mockPlayer(loadJsonFixture('player-not-available.json'));
 
-		const transcriptFetcher = new YoutubeTranscript();
 		try {
-			await transcriptFetcher.fetchTranscript(VIDEO_ID);
+			await fetchTranscript(VIDEO_ID);
 		} catch (error) {
 			expect(error).toBeInstanceOf(YoutubeTranscriptNotAvailableError);
 			expect((error as YoutubeTranscriptNotAvailableError).videoId).toBe(
@@ -411,9 +373,8 @@ describe('YoutubeTranscript Error Handling', () => {
 		mockWatchPage();
 		mockPlayer(loadJsonFixture('player-success.json'));
 
-		const transcriptFetcher = new YoutubeTranscript({ lang: 'fr' });
 		try {
-			await transcriptFetcher.fetchTranscript(VIDEO_ID);
+			await fetchTranscript(VIDEO_ID, { lang: 'fr' });
 		} catch (error) {
 			expect(error).toBeInstanceOf(YoutubeTranscriptNotAvailableLanguageError);
 			const langError = error as YoutubeTranscriptNotAvailableLanguageError;

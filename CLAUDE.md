@@ -25,8 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Core Components
 
 **Main Entry Point (`src/index.ts`)**
-- `YoutubeTranscript` class with both instance and static methods
-- `fetchTranscript()` function exported for convenience
+- `fetchTranscript()` function - Main function for fetching transcripts
 - Uses YouTube Innertube API instead of HTML scraping
 
 **Key Flow:**
@@ -105,6 +104,22 @@ Tests located in `src/__tests__/`:
 
 ## Common Patterns
 
+**Basic Usage:**
+Simple function call with videoId:
+```typescript
+const transcript = await fetchTranscript('dQw4w9WgXcQ');
+```
+
+**With Configuration:**
+Pass configuration options as second parameter:
+```typescript
+const transcript = await fetchTranscript(videoId, {
+  lang: 'fr',
+  cache: new InMemoryCache(),
+  cacheTTL: 3600000,
+});
+```
+
 **Error Handling:**
 Always catch and handle specific error types:
 ```typescript
@@ -119,16 +134,19 @@ try {
 ```
 
 **Custom Fetch Functions:**
-When implementing proxy or custom networking:
+When implementing proxy or custom networking, pass custom fetch functions:
 ```typescript
-const config: TranscriptConfig = {
+const transcript = await fetchTranscript(videoId, {
   videoFetch: async ({ url, lang, userAgent }) => {
     // Custom logic for video page fetch
   },
   transcriptFetch: async ({ url, lang, userAgent }) => {
     // Custom logic for transcript fetch
-  }
-};
+  },
+  playerFetch: async ({ url, method, headers, body, lang, userAgent }) => {
+    // Custom logic for Innertube API fetch
+  },
+});
 ```
 
 **Caching Implementation:**

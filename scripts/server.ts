@@ -108,17 +108,14 @@ const server = Bun.serve({
 						{ status: 502 },
 					);
 				}
-
 				return Response.json({ videoId, transcript: stdout.trim() });
 			},
-		},
 
-		// GET /transcript/:id  →  video ID or URL-encoded URL as path param
-		'/transcript/:id': {
+			// GET /transcript?videoId=<id>  →  video ID or URL-encoded URL as query param
 			GET: async (req) => {
 				if (!isAuthorized(req)) return jsonError('Unauthorized', 401);
 
-				const raw = decodeURIComponent(req.params.id).trim();
+				const raw = new URL(req.url).searchParams.get('videoId');
 				if (!raw) return jsonError('Missing video ID', 400);
 
 				const videoId = extractVideoId(raw);

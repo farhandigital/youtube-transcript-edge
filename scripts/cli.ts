@@ -133,8 +133,11 @@ try {
 	process.stdout.write('\n');
 
 	if (copy) {
-		await clipboardy.write(output);
-		console.error('\n✅ Copied to clipboard!');
+		clipboardy.write(output);
+		setTimeout(() => {
+			console.error('\n✅ Copied to clipboard!');
+			process.exit(0);
+		}, 100);
 	}
 } catch (err) {
 	const message = err instanceof Error ? err.message : String(err);

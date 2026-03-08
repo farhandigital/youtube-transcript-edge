@@ -15,7 +15,7 @@
 		"sourceMap": true,
 		"baseUrl": ".",
 		"lib": ["esnext", "dom"],
-		"types": ["node", "vitest/globals"]
+		"types": ["node", "vitest/globals", "bun"]
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "dist", "**/*.spec.ts"]

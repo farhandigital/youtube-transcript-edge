@@ -1,18 +1,23 @@
-import { type Mock, vi } from 'vitest';
+import { vi } from 'vitest';
 import { YoutubeTranscriptInvalidVideoIdError } from '../errors';
 import { decodeXmlEntities, defaultFetch, retrieveVideoId } from '../utils';
 
-// Mock global fetch
-global.fetch = vi.fn() as unknown as typeof fetch;
-
 describe('defaultFetch', () => {
+	let fetchSpy: ReturnType<typeof vi.spyOn>;
+
 	beforeEach(() => {
-		vi.resetAllMocks();
+		fetchSpy = vi
+			.spyOn(global, 'fetch')
+			.mockResolvedValue({ ok: true } as Response);
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	it('should make GET request by default', async () => {
 		const mockResponse = { ok: true, status: 200 };
-		(global.fetch as Mock).mockResolvedValue(mockResponse);
+		fetchSpy.mockResolvedValue(mockResponse);
 
 		await defaultFetch({
 			url: 'https://example.com',
@@ -20,7 +25,7 @@ describe('defaultFetch', () => {
 			userAgent: 'Test Agent',
 		});
 
-		expect(global.fetch).toHaveBeenCalledWith('https://example.com', {
+		expect(fetchSpy).toHaveBeenCalledWith('https://example.com', {
 			method: 'GET',
 			headers: {
 				'User-Agent': 'Test Agent',
@@ -31,7 +36,7 @@ describe('defaultFetch', () => {
 
 	it('should make POST request with body when specified', async () => {
 		const mockResponse = { ok: true, status: 200 };
-		(global.fetch as Mock).mockResolvedValue(mockResponse);
+		fetchSpy.mockResolvedValue(mockResponse);
 
 		const testBody = JSON.stringify({ test: 'data' });
 		await defaultFetch({
@@ -42,7 +47,7 @@ describe('defaultFetch', () => {
 			userAgent: 'Test Agent',
 		});
 
-		expect(global.fetch).toHaveBeenCalledWith('https://api.example.com', {
+		expect(fetchSpy).toHaveBeenCalledWith('https://api.example.com', {
 			method: 'POST',
 			headers: {
 				'User-Agent': 'Test Agent',
@@ -54,7 +59,7 @@ describe('defaultFetch', () => {
 
 	it('should merge custom headers with default headers', async () => {
 		const mockResponse = { ok: true, status: 200 };
-		(global.fetch as Mock).mockResolvedValue(mockResponse);
+		fetchSpy.mockResolvedValue(mockResponse);
 
 		await defaultFetch({
 			url: 'https://example.com',
@@ -66,7 +71,7 @@ describe('defaultFetch', () => {
 			},
 		});
 
-		expect(global.fetch).toHaveBeenCalledWith('https://example.com', {
+		expect(fetchSpy).toHaveBeenCalledWith('https://example.com', {
 			method: 'GET',
 			headers: {
 				'User-Agent': 'Custom Agent',
@@ -79,14 +84,14 @@ describe('defaultFetch', () => {
 
 	it('should not include Accept-Language header when lang is not provided', async () => {
 		const mockResponse = { ok: true, status: 200 };
-		(global.fetch as Mock).mockResolvedValue(mockResponse);
+		fetchSpy.mockResolvedValue(mockResponse);
 
 		await defaultFetch({
 			url: 'https://example.com',
 			userAgent: 'Test Agent',
 		});
 
-		expect(global.fetch).toHaveBeenCalledWith('https://example.com', {
+		expect(fetchSpy).toHaveBeenCalledWith('https://example.com', {
 			method: 'GET',
 			headers: {
 				'User-Agent': 'Test Agent',
@@ -96,13 +101,13 @@ describe('defaultFetch', () => {
 
 	it('should use default user agent when not provided', async () => {
 		const mockResponse = { ok: true, status: 200 };
-		(global.fetch as Mock).mockResolvedValue(mockResponse);
+		fetchSpy.mockResolvedValue(mockResponse);
 
 		await defaultFetch({
 			url: 'https://example.com',
 		});
 
-		expect(global.fetch).toHaveBeenCalledWith('https://example.com', {
+		expect(fetchSpy).toHaveBeenCalledWith('https://example.com', {
 			method: 'GET',
 			headers: {
 				'User-Agent': expect.stringContaining('Mozilla'),
@@ -112,7 +117,7 @@ describe('defaultFetch', () => {
 
 	it('should not include body for GET requests even if provided', async () => {
 		const mockResponse = { ok: true, status: 200 };
-		(global.fetch as Mock).mockResolvedValue(mockResponse);
+		fetchSpy.mockResolvedValue(mockResponse);
 
 		await defaultFetch({
 			url: 'https://example.com',
@@ -120,7 +125,7 @@ describe('defaultFetch', () => {
 			body: 'should not be included',
 		});
 
-		expect(global.fetch).toHaveBeenCalledWith('https://example.com', {
+		expect(fetchSpy).toHaveBeenCalledWith('https://example.com', {
 			method: 'GET',
 			headers: {
 				'User-Agent': expect.any(String),

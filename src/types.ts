@@ -9,6 +9,7 @@ export interface FetchParams {
 
 export interface TranscriptConfig {
 	lang?: string;
+	format?: 'json' | 'srt' | 'vtt' | 'text';
 	userAgent?: string;
 	cacheTTL?: number;
 	videoFetch?: (params: FetchParams) => Promise<Response>;

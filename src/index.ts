@@ -3,7 +3,12 @@ import {
 	extractCaptionTracks,
 	selectTrack,
 } from './lib/caption-track';
-import { parseTranscriptXml } from './lib/transcript-parser';
+import {
+	jsonTranscriptToPlaintext,
+	jsonTranscriptToSrt,
+	jsonTranscriptToVtt,
+	parseTranscriptXml,
+} from './lib/transcript-parser';
 import {
 	fetchApiKey,
 	fetchPlayerResponse,
@@ -14,8 +19,23 @@ import { retrieveVideoId } from './utils';
 
 export async function fetchTranscript(
 	videoId: string,
+	config: TranscriptConfig & { format: 'json' },
+): Promise<TranscriptResponse[]>;
+
+export async function fetchTranscript(
+	videoId: string,
+	config: TranscriptConfig & { format: 'srt' | 'vtt' | 'text' },
+): Promise<string>;
+
+export async function fetchTranscript(
+	videoId: string,
 	config?: TranscriptConfig,
-): Promise<TranscriptResponse[]> {
+): Promise<TranscriptResponse[]>;
+
+export async function fetchTranscript(
+	videoId: string,
+	config?: TranscriptConfig,
+): Promise<TranscriptResponse[] | string> {
 	const identifier = retrieveVideoId(videoId);
 	const lang = config?.lang;
 
@@ -27,7 +47,18 @@ export async function fetchTranscript(
 	const xml = await fetchTranscriptXml(transcriptUrl, identifier, config);
 	const transcript = parseTranscriptXml(xml, lang, track, identifier);
 
-	return transcript;
+	switch (config?.format) {
+		case 'json':
+			return transcript;
+		case 'srt':
+			return jsonTranscriptToSrt(transcript);
+		case 'vtt':
+			return jsonTranscriptToVtt(transcript);
+		case 'text':
+			return jsonTranscriptToPlaintext(transcript);
+		default:
+			return transcript;
+	}
 }
 
 export * from './errors';

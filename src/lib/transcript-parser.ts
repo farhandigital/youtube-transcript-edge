@@ -33,3 +33,46 @@ export function parseTranscriptXml(
 		lang: lang ?? track.languageCode,
 	}));
 }
+
+export function jsonTranscriptToPlaintext(
+	transcript: TranscriptResponse[],
+): string {
+	return transcript
+		.map((item) => item.text)
+		.join('\n')
+		.trim();
+}
+
+export function jsonTranscriptToSrt(transcript: TranscriptResponse[]): string {
+	return transcript
+		.map((item, index) => {
+			const start = new Date(item.offset * 1000)
+				.toISOString()
+				.substr(11, 12)
+				.replace('.', ',');
+			const end = new Date((item.offset + item.duration) * 1000)
+				.toISOString()
+				.substring(11, 12)
+				.replace('.', ',');
+			return `${index + 1}\n${start} --> ${end}\n${item.text}\n`;
+		})
+		.join('\n');
+}
+
+export function jsonTranscriptToVtt(transcript: TranscriptResponse[]): string {
+	const header = 'WEBVTT\n\n';
+	const body = transcript
+		.map((item) => {
+			const start = new Date(item.offset * 1000)
+				.toISOString()
+				.substr(11, 12)
+				.replace('.', '.');
+			const end = new Date((item.offset + item.duration) * 1000)
+				.toISOString()
+				.substring(11, 12)
+				.replace('.', '.');
+			return `${start} --> ${end}\n${item.text}\n`;
+		})
+		.join('\n');
+	return header + body;
+}

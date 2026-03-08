@@ -13,12 +13,11 @@ import { defaultFetch } from '../utils';
 
 export async function fetchApiKey(
 	identifier: string,
-	protocol: string,
 	config?: TranscriptConfig,
 ): Promise<string> {
 	const lang = config?.lang;
 	const userAgent = config?.userAgent ?? DEFAULT_USER_AGENT;
-	const watchUrl = `${protocol}://www.youtube.com/watch?v=${identifier}`;
+	const watchUrl = `https://www.youtube.com/watch?v=${identifier}`;
 
 	const videoPageResponse = config?.videoFetch
 		? await config.videoFetch({ url: watchUrl, lang, userAgent })
@@ -48,12 +47,11 @@ export async function fetchApiKey(
 export async function fetchPlayerResponse(
 	identifier: string,
 	apiKey: string,
-	protocol: string,
 	config?: TranscriptConfig,
 ): Promise<YouTubePlayerResponse> {
 	const lang = config?.lang;
 	const userAgent = config?.userAgent ?? DEFAULT_USER_AGENT;
-	const playerEndpoint = `${protocol}://www.youtube.com/youtubei/v1/player?key=${apiKey}`;
+	const playerEndpoint = `https://www.youtube.com/youtubei/v1/player?key=${apiKey}`;
 
 	const playerBody = {
 		context: {

@@ -122,7 +122,7 @@ describe('YoutubeTranscript', () => {
 		mockPlayer(loadJsonFixture('player-success.json'), 'http');
 		mockTranscript('http');
 
-		const transcriptFetcher = new YoutubeTranscript({ disableHttps: true });
+		const transcriptFetcher = new YoutubeTranscript();
 		const transcript = await transcriptFetcher.fetchTranscript(VIDEO_ID);
 
 		expect(transcript.length).toBeGreaterThan(0);

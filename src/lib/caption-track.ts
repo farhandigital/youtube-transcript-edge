@@ -54,7 +54,6 @@ export function selectTrack(
 export function buildTranscriptUrl(
 	track: CaptionTrack,
 	identifier: string,
-	disableHttps: boolean,
 ): string {
 	const raw: string = track.baseUrl || track.url || '';
 
@@ -62,11 +61,7 @@ export function buildTranscriptUrl(
 		throw new YoutubeTranscriptNotAvailableError(identifier);
 	}
 
-	let url = raw.replace(/&fmt=[^&]+/, '');
-
-	if (disableHttps) {
-		url = url.replace(/^https:\/\//, 'http://');
-	}
+	const url = raw.replace(/&fmt=[^&]+/, '');
 
 	return url;
 }

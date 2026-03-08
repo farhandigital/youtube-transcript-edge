@@ -11,7 +11,6 @@ export interface TranscriptConfig {
 	lang?: string;
 	userAgent?: string;
 	cacheTTL?: number;
-	disableHttps?: boolean;
 	videoFetch?: (params: FetchParams) => Promise<Response>;
 	transcriptFetch?: (params: FetchParams) => Promise<Response>;
 	playerFetch?: (params: FetchParams) => Promise<Response>;

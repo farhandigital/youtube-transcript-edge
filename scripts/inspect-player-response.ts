@@ -47,11 +47,9 @@ if (!videoId) {
 	process.exit(1);
 }
 
-const protocol = useHttp ? 'http' : 'https';
-
 // ── Step 1: Fetch watch page to extract the Innertube API key ────────────────
 console.log(`\n[1/3] Fetching watch page for video: ${videoId}`);
-const watchUrl = `${protocol}://www.youtube.com/watch?v=${videoId}`;
+const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
 const watchRes = await fetch(watchUrl, {
 	headers: { 'User-Agent': DEFAULT_USER_AGENT },
@@ -86,7 +84,7 @@ const apiKey = apiKeyMatch[1];
 console.log(`[2/3] Extracted API key: ${apiKey}`);
 
 // ── Step 2: Call the Innertube /player endpoint ───────────────────────────────
-const playerUrl = `${protocol}://www.youtube.com/youtubei/v1/player?key=${apiKey}`;
+const playerUrl = `https://www.youtube.com/youtubei/v1/player?key=${apiKey}`;
 const playerBody = {
 	context: {
 		client: {

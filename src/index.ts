@@ -18,22 +18,16 @@ export class YoutubeTranscript {
 	async fetchTranscript(videoId: string): Promise<TranscriptResponse[]> {
 		const identifier = retrieveVideoId(videoId);
 		const lang = this.config?.lang;
-		const protocol = this.config?.disableHttps ? 'http' : 'https';
 
-		const apiKey = await fetchApiKey(identifier, protocol, this.config);
+		const apiKey = await fetchApiKey(identifier, this.config);
 		const playerJson = await fetchPlayerResponse(
 			identifier,
 			apiKey,
-			protocol,
 			this.config,
 		);
 		const tracks = extractCaptionTracks(playerJson, identifier);
 		const track = selectTrack(tracks, lang, identifier);
-		const transcriptUrl = buildTranscriptUrl(
-			track,
-			identifier,
-			this.config?.disableHttps ?? false,
-		);
+		const transcriptUrl = buildTranscriptUrl(track, identifier);
 		const xml = await fetchTranscriptXml(
 			transcriptUrl,
 			identifier,

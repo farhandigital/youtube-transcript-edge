@@ -12,6 +12,7 @@ export interface TranscriptConfig {
 	format?: 'json' | 'srt' | 'vtt' | 'text';
 	userAgent?: string;
 	cacheTTL?: number;
+	includeMetadata?: boolean;
 	videoFetch?: (params: FetchParams) => Promise<Response>;
 	transcriptFetch?: (params: FetchParams) => Promise<Response>;
 	playerFetch?: (params: FetchParams) => Promise<Response>;
@@ -22,6 +23,30 @@ export interface TranscriptResponse {
 	duration: number;
 	offset: number;
 	lang: string;
+}
+
+export interface VideoMetadata {
+	/** Video title */
+	title?: string;
+	/** Video description */
+	description?: string;
+	/** Video duration in seconds */
+	durationSeconds?: number;
+	/** Channel/Creator name */
+	author?: string;
+	/** Channel ID */
+	channelId?: string;
+	/** Keywords associated with the video */
+	keywords?: string[];
+	/** YouTube video URL */
+	url: string;
+	/** Video ID */
+	videoId: string;
+}
+
+export interface TranscriptWithMetadata {
+	transcript: TranscriptResponse[];
+	metadata: VideoMetadata;
 }
 
 // ─── YouTube Innertube /player API response types ────────────────────────────
@@ -52,6 +77,26 @@ export interface PlayerCaptionsTracklistRenderer {
 	defaultAudioTrackIndex?: number;
 }
 
+export interface VideoDetails {
+	videoId: string;
+	title?: string;
+	lengthSeconds?: string;
+	keywords?: string[];
+	channelId?: string;
+	/** Channel name / creator */
+	author?: string;
+	isLiveContent?: boolean;
+}
+
+export interface MicroFormat {
+	playlistVideoType?: string;
+	musicVideoMetadata?: unknown;
+	videoDetails?: VideoDetails;
+	title?: { simpleText?: string };
+	description?: { simpleText?: string };
+	lengthSeconds?: string;
+}
+
 export interface YouTubePlayerResponse {
 	playabilityStatus?: {
 		status?: string;
@@ -67,4 +112,8 @@ export interface YouTubePlayerResponse {
 	 * level (e.g. when accessed via certain clients). We handle both paths.
 	 */
 	playerCaptionsTracklistRenderer?: PlayerCaptionsTracklistRenderer;
+	/** Video metadata from the player response */
+	videoDetails?: VideoDetails;
+	/** Alternative metadata format */
+	microformat?: MicroFormat;
 }

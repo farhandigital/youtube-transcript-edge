@@ -1,6 +1,10 @@
 import { DEFAULT_USER_AGENT, RE_YOUTUBE } from './constants';
 import { YoutubeTranscriptInvalidVideoIdError } from './errors';
-import type { FetchParams } from './types';
+import type {
+	FetchParams,
+	VideoMetadata,
+	YouTubePlayerResponse,
+} from './types';
 
 const RE_VIDEO_ID = /^[a-zA-Z0-9_-]{11}$/;
 
@@ -49,4 +53,32 @@ export async function defaultFetch(params: FetchParams): Promise<Response> {
 	}
 
 	return fetch(url, fetchOptions);
+}
+
+/**
+ * Extract video metadata from YouTube player response
+ * @param playerResponse - The player response from YouTube's Innertube API
+ * @param videoId - The video ID
+ * @returns Video metadata object with title, description, author, etc.
+ */
+export function extractVideoMetadata(
+	playerResponse: YouTubePlayerResponse,
+	videoId: string,
+): VideoMetadata {
+	// Try to get videoDetails from the response
+	const videoDetails = playerResponse.videoDetails;
+	const microformat = playerResponse.microformat;
+
+	return {
+		title: videoDetails?.title,
+		description: microformat?.description?.simpleText,
+		durationSeconds: videoDetails?.lengthSeconds
+			? parseInt(videoDetails.lengthSeconds, 10)
+			: undefined,
+		author: videoDetails?.author,
+		channelId: videoDetails?.channelId,
+		keywords: videoDetails?.keywords,
+		url: `https://www.youtube.com/watch?v=${videoId}`,
+		videoId,
+	};
 }

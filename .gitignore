@@ -25,3 +25,6 @@ yarn-error.log*
 .editorconfig
 /storybook-static
 .npmrc
+
+# pipeline debug output
+pipeline-debug/

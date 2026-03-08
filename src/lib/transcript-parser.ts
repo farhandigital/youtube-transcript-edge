@@ -45,7 +45,7 @@ export function jsonTranscriptToSrt(transcript: TranscriptResponse[]): string {
 		.map((item, index) => {
 			const start = new Date(item.offset * 1000)
 				.toISOString()
-				.substr(11, 12)
+				.substring(11, 12)
 				.replace('.', ',');
 			const end = new Date((item.offset + item.duration) * 1000)
 				.toISOString()
@@ -62,7 +62,7 @@ export function jsonTranscriptToVtt(transcript: TranscriptResponse[]): string {
 		.map((item) => {
 			const start = new Date(item.offset * 1000)
 				.toISOString()
-				.substr(11, 12)
+				.substring(11, 12)
 				.replace('.', '.');
 			const end = new Date((item.offset + item.duration) * 1000)
 				.toISOString()

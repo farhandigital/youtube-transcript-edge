@@ -91,6 +91,14 @@ export async function fetchTranscript(
 
 export * from './errors';
 export type {
+	PlayerInspectionDebugResult,
+	PlayerInspectionResult,
+} from './lib/inspector';
+export {
+	inspectPlayerResponse,
+	inspectPlayerResponseDebug,
+} from './lib/inspector';
+export type {
 	FetchParams,
 	TranscriptConfig,
 	TranscriptResponse,

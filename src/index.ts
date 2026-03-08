@@ -25,35 +25,20 @@ import {
 	retrieveVideoId,
 } from './utils';
 
-export async function fetchTranscript(
-	videoId: string,
-	config: TranscriptConfig & { format: 'json'; includeMetadata: true },
-): Promise<TranscriptWithMetadata>;
+type TranscriptResult<C extends TranscriptConfig | undefined> = C extends {
+	format: 'text';
+	includeMetadata: true;
+}
+	? string
+	: C extends { includeMetadata: true }
+		? TranscriptWithMetadata
+		: C extends { format: 'srt' | 'vtt' | 'text' }
+			? string
+			: TranscriptResponse[];
 
-export async function fetchTranscript(
-	videoId: string,
-	config: TranscriptConfig & { format: 'text'; includeMetadata: true },
-): Promise<string>;
-
-export async function fetchTranscript(
-	videoId: string,
-	config: TranscriptConfig & { includeMetadata: true },
-): Promise<TranscriptWithMetadata>;
-
-export async function fetchTranscript(
-	videoId: string,
-	config: TranscriptConfig & { format: 'json' },
-): Promise<TranscriptResponse[]>;
-
-export async function fetchTranscript(
-	videoId: string,
-	config: TranscriptConfig & { format: 'srt' | 'vtt' | 'text' },
-): Promise<string>;
-
-export async function fetchTranscript(
-	videoId: string,
-	config?: TranscriptConfig,
-): Promise<TranscriptResponse[]>;
+export async function fetchTranscript<
+	C extends TranscriptConfig | undefined = undefined,
+>(videoId: string, config?: C): Promise<TranscriptResult<C>>;
 
 export async function fetchTranscript(
 	videoId: string,

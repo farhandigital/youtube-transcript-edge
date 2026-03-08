@@ -54,5 +54,8 @@
 	"homepage": "https://github.com/farhandigital/youtube-transcript-edge",
 	"engines": {
 		"node": ">=18.0.0"
+	},
+	"dependencies": {
+		"fast-xml-parser": "^5.4.2"
 	}
 }

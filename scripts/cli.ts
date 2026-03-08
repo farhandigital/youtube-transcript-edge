@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * CLI script to fetch and print a YouTube transcript.
  *
@@ -18,6 +19,7 @@
  *   bun scripts/cli.ts dQw4w9WgXcQ --lang fr --format text
  */
 
+import clipboardy from 'clipboardy';
 import { fetchTranscript } from '../src/index';
 import type { TranscriptConfig } from '../src/types';
 
@@ -30,6 +32,7 @@ Options:
   --format <json|srt|vtt|text>   Output format  (default: text)
   --lang   <code>                Language code  (default: auto-detect)
   --metadata                     Include video metadata in the output
+  --copy, -c                     Copy the output to the clipboard
   --help, -h                     Show this help message
 
 Examples:
@@ -37,6 +40,7 @@ Examples:
   bun scripts/cli.ts dQw4w9WgXcQ --format srt
   bun scripts/cli.ts dQw4w9WgXcQ --format json --metadata
   bun scripts/cli.ts dQw4w9WgXcQ --lang fr
+  bun scripts/cli.ts dQw4w9WgXcQ --copy
 `.trim();
 
 function parseArgs(argv: string[]): {
@@ -45,6 +49,7 @@ function parseArgs(argv: string[]): {
 	lang: string | undefined;
 	metadata: boolean;
 	help: boolean;
+	copy: boolean;
 } {
 	const args = argv.slice(2); // strip "bun" and script path
 	let videoId: string | undefined;
@@ -52,12 +57,15 @@ function parseArgs(argv: string[]): {
 	let lang: string | undefined;
 	let metadata = false;
 	let help = false;
+	let copy = false;
 
 	for (let i = 0; i < args.length; i++) {
 		const arg = args[i];
 
 		if (arg === '--help' || arg === '-h') {
 			help = true;
+		} else if (arg === '--copy' || arg === '-c') {
+			copy = true;
 		} else if (arg === '--metadata') {
 			metadata = true;
 		} else if (arg === '--format') {
@@ -84,7 +92,7 @@ function parseArgs(argv: string[]): {
 		}
 	}
 
-	return { videoId, format, lang, metadata, help };
+	return { videoId, format, lang, metadata, help, copy };
 }
 
 function formatOutput(
@@ -98,7 +106,7 @@ function formatOutput(
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-const { videoId, format, lang, metadata, help } = parseArgs(process.argv);
+const { videoId, format, lang, metadata, help, copy } = parseArgs(process.argv);
 
 if (help) {
 	console.log(HELP);
@@ -119,9 +127,15 @@ const config: TranscriptConfig = {
 
 try {
 	const result = await fetchTranscript(videoId, config);
-	process.stdout.write(formatOutput(result, format));
+	const output = formatOutput(result, format);
+	process.stdout.write(output);
 	// Ensure there's a trailing newline for clean terminal output
 	process.stdout.write('\n');
+
+	if (copy) {
+		await clipboardy.write(output);
+		console.error('\n✅ Copied to clipboard!');
+	}
 } catch (err) {
 	const message = err instanceof Error ? err.message : String(err);
 	console.error(`Error: ${message}`);

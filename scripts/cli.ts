@@ -95,15 +95,6 @@ function parseArgs(argv: string[]): {
 	return { videoId, format, lang, metadata, help, copy };
 }
 
-function formatOutput(
-	result: unknown,
-	format: TranscriptConfig['format'],
-): string {
-	if (typeof result === 'string') return result;
-	// json / default (array or object with metadata)
-	return JSON.stringify(result, null, 2);
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 const { videoId, format, lang, metadata, help, copy } = parseArgs(process.argv);
@@ -127,7 +118,8 @@ const config: TranscriptConfig = {
 
 try {
 	const result = await fetchTranscript(videoId, config);
-	const output = formatOutput(result, format);
+	const output =
+		typeof result === 'string' ? result : JSON.stringify(result, null, 2);
 	process.stdout.write(output);
 	// Ensure there's a trailing newline for clean terminal output
 	process.stdout.write('\n');

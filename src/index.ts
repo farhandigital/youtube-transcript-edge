@@ -20,21 +20,6 @@ export class YoutubeTranscript {
 		const lang = this.config?.lang;
 		const protocol = this.config?.disableHttps ? 'http' : 'https';
 
-		// Cache lookup
-		const cache = this.config?.cache;
-		const cacheTTL = this.config?.cacheTTL;
-		const cacheKey = `yt:transcript:${identifier}:${lang ?? ''}`;
-		if (cache) {
-			const cached = await cache.get(cacheKey);
-			if (cached) {
-				try {
-					return JSON.parse(cached) as TranscriptResponse[];
-				} catch {
-					// ignore parse errors and continue
-				}
-			}
-		}
-
 		const apiKey = await fetchApiKey(identifier, protocol, this.config);
 		const playerJson = await fetchPlayerResponse(
 			identifier,
@@ -56,15 +41,6 @@ export class YoutubeTranscript {
 		);
 		const transcript = parseTranscriptXml(xml, lang, track, identifier);
 
-		// Cache store
-		if (cache) {
-			try {
-				await cache.set(cacheKey, JSON.stringify(transcript), cacheTTL);
-			} catch {
-				// non-fatal
-			}
-		}
-
 		return transcript;
 	}
 
@@ -77,10 +53,8 @@ export class YoutubeTranscript {
 	}
 }
 
-export { InMemoryCache } from './cache';
 export * from './errors';
 export type {
-	CacheStrategy,
 	FetchParams,
 	TranscriptConfig,
 	TranscriptResponse,

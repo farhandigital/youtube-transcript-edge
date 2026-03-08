@@ -1,8 +1,3 @@
-export interface CacheStrategy {
-	get(key: string): Promise<string | null>;
-	set(key: string, value: string, ttl?: number): Promise<void>;
-}
-
 export interface FetchParams {
 	url: string;
 	lang?: string;
@@ -15,7 +10,6 @@ export interface FetchParams {
 export interface TranscriptConfig {
 	lang?: string;
 	userAgent?: string;
-	cache?: CacheStrategy;
 	cacheTTL?: number;
 	disableHttps?: boolean;
 	videoFetch?: (params: FetchParams) => Promise<Response>;

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import nock from 'nock';
-import { type Mock, vi } from 'vitest';
+import { vi } from 'vitest';
 import {
 	YoutubeTranscriptDisabledError,
 	YoutubeTranscriptInvalidVideoIdError,
@@ -11,7 +11,6 @@ import {
 	YoutubeTranscriptVideoUnavailableError,
 } from '../errors';
 import { fetchTranscript, YoutubeTranscript } from '../index';
-import type { CacheStrategy } from '../types';
 import { retrieveVideoId } from '../utils';
 
 const fixturesDir = path.join(process.cwd(), 'src', '__tests__', 'fixtures');
@@ -422,90 +421,5 @@ describe('YoutubeTranscript Error Handling', () => {
 			expect(langError.availableLangs).toEqual(['en']);
 			expect(langError.videoId).toBe(VIDEO_ID);
 		}
-	});
-});
-
-describe('YoutubeTranscript Caching', () => {
-	it('should return cached result without making HTTP calls', async () => {
-		const cachedData = JSON.stringify([
-			{ text: 'cached text', duration: 1.0, offset: 0, lang: 'en' },
-		]);
-
-		const mockCache: CacheStrategy = {
-			get: vi.fn().mockResolvedValue(cachedData),
-			set: vi.fn().mockResolvedValue(undefined),
-		};
-
-		const transcriptFetcher = new YoutubeTranscript({ cache: mockCache });
-		const result = await transcriptFetcher.fetchTranscript(VIDEO_ID);
-
-		expect(result).toEqual([
-			{ text: 'cached text', duration: 1.0, offset: 0, lang: 'en' },
-		]);
-		expect(mockCache.get).toHaveBeenCalledWith(`yt:transcript:${VIDEO_ID}:`);
-		// No HTTP calls should be made
-		expect(nock.pendingMocks()).toHaveLength(0);
-	});
-
-	it('should store result in cache after successful fetch', async () => {
-		const mockCache: CacheStrategy = {
-			get: vi.fn().mockResolvedValue(null),
-			set: vi.fn().mockResolvedValue(undefined),
-		};
-
-		mockWatchPage();
-		mockPlayer(loadJsonFixture('player-success.json'));
-		mockTranscript();
-
-		const transcriptFetcher = new YoutubeTranscript({
-			cache: mockCache,
-			cacheTTL: 5000,
-		});
-		await transcriptFetcher.fetchTranscript(VIDEO_ID);
-
-		expect(mockCache.set).toHaveBeenCalledWith(
-			`yt:transcript:${VIDEO_ID}:`,
-			expect.any(String),
-			5000,
-		);
-
-		const storedValue = JSON.parse((mockCache.set as Mock).mock.calls[0][1]);
-		expect(storedValue).toEqual([
-			{ text: 'Hello world', duration: 1.5, offset: 0, lang: 'en' },
-			{ text: 'Second line', duration: 2.0, offset: 1.5, lang: 'en' },
-		]);
-	});
-
-	it('should continue fetching when cache returns invalid JSON', async () => {
-		const mockCache: CacheStrategy = {
-			get: vi.fn().mockResolvedValue('not valid json{{{'),
-			set: vi.fn().mockResolvedValue(undefined),
-		};
-
-		mockWatchPage();
-		mockPlayer(loadJsonFixture('player-success.json'));
-		mockTranscript();
-
-		const transcriptFetcher = new YoutubeTranscript({ cache: mockCache });
-		const result = await transcriptFetcher.fetchTranscript(VIDEO_ID);
-
-		expect(result).toHaveLength(2);
-		expect(result[0].text).toBe('Hello world');
-	});
-
-	it('should not throw when cache.set fails', async () => {
-		const mockCache: CacheStrategy = {
-			get: vi.fn().mockResolvedValue(null),
-			set: vi.fn().mockRejectedValue(new Error('disk full')),
-		};
-
-		mockWatchPage();
-		mockPlayer(loadJsonFixture('player-success.json'));
-		mockTranscript();
-
-		const transcriptFetcher = new YoutubeTranscript({ cache: mockCache });
-		const result = await transcriptFetcher.fetchTranscript(VIDEO_ID);
-
-		expect(result).toHaveLength(2);
 	});
 });

@@ -107,48 +107,6 @@ fetchTranscript('videoId_or_URL', {
   .catch(console.error);
 ```
 
-### Caching
-
-You can provide a custom caching strategy by implementing the `CacheStrategy` interface. The library also provides a default implementation for in-memory caching. Note that `FsCache` is not available in this edge-compatible version.
-
-#### In-Memory Cache
-
-```typescript
-import { fetchTranscript, InMemoryCache } from 'youtube-transcript-edge';
-
-fetchTranscript('videoId_or_URL', {
-  lang: 'en',
-  userAgent: 'FOO',
-  cache: new InMemoryCache(1800000), // 30 minutes TTL
-})
-  .then(console.log)
-  .catch(console.error);
-```
-
-### Custom Caching
-
-If the default implementations don’t meet your needs, you can implement your own caching strategy:
-
-```typescript
-import { fetchTranscript, CacheStrategy } from 'youtube-transcript-edge';
-
-class CustomCache implements CacheStrategy {
-  async get(key: string): Promise<string | null> {
-    // Custom logic
-  }
-
-  async set(key: string, value: string, ttl?: number): Promise<void> {
-    // Custom logic
-  }
-}
-
-fetchTranscript('videoId_or_URL', {
-  cache: new CustomCache(),
-})
-  .then(console.log)
-  .catch(console.error);
-```
-
 ### Error Handling
 
 The library throws specific errors for different failure scenarios. Each error includes a `videoId` property for programmatic handling.
@@ -183,7 +141,6 @@ fetchTranscript('videoId_or_URL')
 The repository includes several example files in the `example/` directory to demonstrate different use cases of the library:
 
 1. **`basic-usage.js`**: Demonstrates the simplest way to fetch a transcript using the default settings.
-2. **`caching-usage.js`**: Shows how to use the `InMemoryCache` to cache transcripts with a 30-minute TTL.
 3. **`language-usage.js`**: Shows how to fetch a transcript in a specific language (e.g., French).
 4. **`proxy-usage.js`**: Demonstrates how to use a proxy server to fetch transcripts, which can be useful for bypassing rate limits or accessing restricted content.
 5. **`custom-fetch-usage.js`**: Shows how to use all three custom fetch functions (`videoFetch`, `playerFetch`, `transcriptFetch`) with logging and custom headers.
@@ -199,7 +156,6 @@ import type {
   TranscriptConfig,
   TranscriptResponse,
   FetchParams,
-  CacheStrategy,
 } from 'youtube-transcript-edge';
 ```
 
@@ -213,8 +169,6 @@ Fetches the transcript for a YouTube video.
 - **`config`**: Optional configuration object with the following properties:
   - **`lang`**: Language code (e.g., `'en'`, `'fr'`) for the transcript.
   - **`userAgent`**: Custom User-Agent string.
-  - **`cache`**: Custom caching strategy.
-  - **`cacheTTL`**: Time-to-live for cache entries in milliseconds.
   - **`disableHttps`**: Set to `true` to use HTTP instead of HTTPS for YouTube requests.
   - **`videoFetch`**: Custom fetch function for the video page request (GET).
   - **`playerFetch`**: Custom fetch function for the YouTube Innertube API request (POST).

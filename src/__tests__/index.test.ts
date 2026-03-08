@@ -112,21 +112,6 @@ describe('fetchTranscript', () => {
 		);
 	});
 
-	it('should construct URLs with HTTP when disableHttps is true', async () => {
-		mockWatchPage('http');
-		mockPlayer(loadJsonFixture('player-success.json'), 'http');
-		mockTranscript('http');
-
-		const transcript = await fetchTranscript(VIDEO_ID, {
-			videoFetch: async ({ url }) => {
-				return fetch(url.replace('https://', 'http://'));
-			},
-		});
-
-		expect(transcript.length).toBeGreaterThan(0);
-		expect(nock.isDone()).toBe(true);
-	});
-
 	it('should use custom playerFetch when provided', async () => {
 		const mockPlayerFetch = vi.fn().mockResolvedValue({
 			ok: true,

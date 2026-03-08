@@ -18,9 +18,18 @@ export function parseTranscriptXml(
 	identifier: string,
 ): TranscriptResponse[] {
 	const parsed = parser.parse(body);
-	const items = parsed?.transcript?.text;
+	let items = parsed?.transcript?.text;
 
-	if (!items || items.length === 0) {
+	if (!items) {
+		throw new YoutubeTranscriptNotAvailableError(identifier);
+	}
+
+	// Normalize single item to array
+	if (!Array.isArray(items)) {
+		items = [items];
+	}
+
+	if (items.length === 0) {
 		throw new YoutubeTranscriptNotAvailableError(identifier);
 	}
 

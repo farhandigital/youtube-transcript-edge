@@ -69,8 +69,8 @@ describe('fetchTranscript', () => {
 		const transcript = await fetchTranscript(VIDEO_ID);
 
 		expect(transcript).toEqual([
-			{ text: 'Hello world', duration: 1.5, offset: 0, lang: 'en' },
-			{ text: 'Second line', duration: 2.0, offset: 1.5, lang: 'en' },
+			{ text: 'Hello world', duration: 1.5, offset: 0 },
+			{ text: 'Second line', duration: 2.0, offset: 1.5 },
 		]);
 	});
 
@@ -82,8 +82,8 @@ describe('fetchTranscript', () => {
 		const transcript = await fetchTranscript(VIDEO_ID);
 
 		expect(transcript).toEqual([
-			{ text: 'rock & roll', duration: 1.5, offset: 0, lang: 'en' },
-			{ text: 'it\'s a "test"', duration: 2.0, offset: 1.5, lang: 'en' },
+			{ text: 'rock & roll', duration: 1.5, offset: 0 },
+			{ text: 'it\'s a "test"', duration: 2.0, offset: 1.5 },
 		]);
 	});
 
@@ -139,7 +139,9 @@ describe('fetchTranscript', () => {
 		const mockTranscriptFetch = vi.fn().mockResolvedValue({
 			ok: true,
 			text: () =>
-				Promise.resolve('<text start="0" dur="1.5">Hello world</text>'),
+				Promise.resolve(
+					'<transcript><text start="0" dur="1.5">Hello world</text></transcript>',
+				),
 		});
 
 		const result = await fetchTranscript('dQw4w9WgXcQ', {
@@ -156,9 +158,7 @@ describe('fetchTranscript', () => {
 			headers: { 'Content-Type': 'application/json' },
 			body: expect.stringContaining('"videoId":"dQw4w9WgXcQ"'),
 		});
-		expect(result).toEqual([
-			{ text: 'Hello world', duration: 1.5, offset: 0, lang: 'en' },
-		]);
+		expect(result).toEqual([{ text: 'Hello world', duration: 1.5, offset: 0 }]);
 	});
 
 	it('should use custom videoFetch and transcriptFetch when provided', async () => {
@@ -170,7 +170,9 @@ describe('fetchTranscript', () => {
 		const mockTranscriptFetch = vi.fn().mockResolvedValue({
 			ok: true,
 			text: () =>
-				Promise.resolve('<text start="0" dur="2.0">Custom transcript</text>'),
+				Promise.resolve(
+					'<transcript><text start="0" dur="2.0">Custom transcript</text></transcript>',
+				),
 		});
 
 		nock('https://www.youtube.com')
@@ -205,7 +207,7 @@ describe('fetchTranscript', () => {
 			userAgent: 'CustomAgent/1.0',
 		});
 		expect(result).toEqual([
-			{ text: 'Custom transcript', duration: 2.0, offset: 0, lang: 'fr' },
+			{ text: 'Custom transcript', duration: 2.0, offset: 0 },
 		]);
 	});
 });

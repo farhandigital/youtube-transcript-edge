@@ -1,3 +1,4 @@
+import { decodeHTML } from 'entities';
 import { XMLParser } from 'fast-xml-parser';
 import { YoutubeTranscriptNotAvailableError } from '../errors';
 import type { TranscriptResponse } from '../types';
@@ -5,6 +6,7 @@ import type { TranscriptResponse } from '../types';
 const parser = new XMLParser({
 	ignoreAttributes: false,
 	attributeNamePrefix: '',
+	tagValueProcessor: (_tag, val) => decodeHTML(val),
 });
 
 interface TranscriptTextNode {

@@ -32,16 +32,7 @@ async function runTranscript(
 	videoId: string,
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
 	const proc = Bun.spawn(
-		[
-			'bun',
-			'run',
-			CLI_SCRIPT,
-			'--format',
-			'text',
-			'--metadata',
-			'--copy',
-			videoId,
-		],
+		['bun', 'run', CLI_SCRIPT, '--format', 'text', '--metadata', videoId],
 		{
 			stdout: 'pipe',
 			stderr: 'pipe',

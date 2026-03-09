@@ -75,7 +75,13 @@ const server = Bun.serve({
 		'/transcript': {
 			// GET /transcript?videoId=<id>  →  video ID or URL-encoded URL as query param
 			GET: async (req) => {
-				if (!isAuthorized(req)) return jsonError('Unauthorized', 401);
+				console.log(`[server] received request: ${req.method} ${req.url}`);
+				if (!isAuthorized(req)) {
+					console.log(
+						`[server] unauthorized request: ${req.method} ${req.url}`,
+					);
+					return jsonError('Unauthorized', 401);
+				}
 
 				const raw = new URL(req.url).searchParams.get('videoId');
 				if (!raw) return jsonError('Missing video ID', 400);
@@ -100,6 +106,7 @@ const server = Bun.serve({
 
 	// Fallback
 	fetch(req) {
+		console.log(`[server] received request: ${req.method} ${req.url}`);
 		return Response.json(
 			{
 				error: 'Not found',

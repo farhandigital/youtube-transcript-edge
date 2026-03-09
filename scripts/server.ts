@@ -82,35 +82,6 @@ const server = Bun.serve({
 	routes: {
 		// POST /transcript  →  { "videoId": "..." }
 		'/transcript': {
-			POST: async (req) => {
-				console.log(`[transcript] POST /transcript`);
-				if (!isAuthorized(req)) return jsonError('Unauthorized', 401);
-
-				let body: { videoId?: string };
-				try {
-					body = await req.json();
-				} catch {
-					return jsonError('Invalid JSON body', 400);
-				}
-
-				const raw = body.videoId?.trim();
-				if (!raw) return jsonError('Missing "videoId" field', 400);
-
-				const videoId = extractVideoId(raw);
-				console.log(`[transcript] running for: ${videoId}`);
-
-				const { stdout, stderr, exitCode } = await runTranscript(videoId);
-
-				if (exitCode !== 0) {
-					console.error(`[transcript] CLI error (exit ${exitCode}): ${stderr}`);
-					return Response.json(
-						{ error: stderr.trim() || 'CLI failed' },
-						{ status: 502 },
-					);
-				}
-				return Response.json({ videoId, transcript: stdout.trim() });
-			},
-
 			// GET /transcript?videoId=<id>  →  video ID or URL-encoded URL as query param
 			GET: async (req) => {
 				if (!isAuthorized(req)) return jsonError('Unauthorized', 401);
@@ -141,7 +112,7 @@ const server = Bun.serve({
 		return Response.json(
 			{
 				error: 'Not found',
-				hint: 'POST /transcript  or  GET /transcript/:videoId',
+				hint: 'GET /transcript?videoId=<id-or-url>',
 			},
 			{ status: 404 },
 		);

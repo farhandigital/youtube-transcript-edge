@@ -99,6 +99,7 @@ const server = Bun.serve({
 					);
 				}
 
+				console.log(`[transcript] success for: ${videoId}`);
 				return Response.json({ videoId, transcript: stdout.trim() });
 			},
 		},

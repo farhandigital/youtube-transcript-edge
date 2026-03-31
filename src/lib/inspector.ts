@@ -71,7 +71,7 @@ export async function inspectPlayerResponse(
 ): Promise<PlayerInspectionResult> {
 	try {
 		const identifier = retrieveVideoId(videoId);
-		const apiKey = await fetchApiKey(identifier, config);
+		const { apiKey } = await fetchApiKey(identifier, config);
 		const playerJson = await fetchPlayerResponse(identifier, apiKey, config);
 
 		const playabilityStatus = playerJson.playabilityStatus?.status ?? 'UNKNOWN';

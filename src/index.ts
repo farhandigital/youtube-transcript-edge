@@ -53,10 +53,11 @@ export async function fetchTranscript(
 		? new DebugWriter(identifier, config?.debugDir ?? './debug')
 		: null;
 
-	const apiKey = await fetchApiKey(identifier, config);
+	const { apiKey, html: watchPageHtml } = await fetchApiKey(identifier, config);
 	const playerJson = await fetchPlayerResponse(identifier, apiKey, config);
 
 	if (debugWriter) {
+		await debugWriter.write('00-watch-page.html', watchPageHtml);
 		await debugWriter.writeJson('01-player-response.json', playerJson);
 	}
 
@@ -104,18 +105,18 @@ export async function fetchTranscript(
 	const textOutput = jsonTranscriptToPlaintext(transcript);
 
 	if (debugWriter) {
-		await debugWriter.writeJson('07-output.json', jsonOutput);
-		await debugWriter.write('08-output.srt', srtOutput);
-		await debugWriter.write('09-output.vtt', vttOutput);
-		await debugWriter.write('10-output.txt', textOutput);
+		await debugWriter.writeJson('08-output.json', jsonOutput);
+		await debugWriter.write('09-output.srt', srtOutput);
+		await debugWriter.write('10-output.vtt', vttOutput);
+		await debugWriter.write('11-output.txt', textOutput);
 
 		if (metadata) {
 			const yamlMetadata = metadataObjToYaml(metadata);
 			await debugWriter.write(
-				'11-output-text-with-metadata.txt',
+				'12-output-text-with-metadata.txt',
 				`${yamlMetadata}\n\n${textOutput}`,
 			);
-			await debugWriter.writeJson('12-output-json-with-metadata.json', {
+			await debugWriter.writeJson('13-output-json-with-metadata.json', {
 				transcript: jsonOutput,
 				metadata,
 			});

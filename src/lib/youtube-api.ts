@@ -16,7 +16,7 @@ const BASE_URL = 'https://www.youtube.com';
 export async function fetchApiKey(
 	identifier: string,
 	config?: TranscriptConfig,
-): Promise<string> {
+): Promise<{ apiKey: string; html: string }> {
 	const lang = config?.lang;
 	const userAgent = config?.userAgent ?? DEFAULT_USER_AGENT;
 	const watchUrl = `${BASE_URL}/watch?v=${identifier}`;
@@ -43,7 +43,7 @@ export async function fetchApiKey(
 		throw new YoutubeTranscriptNotAvailableError(identifier);
 	}
 
-	return apiKeyMatch[1];
+	return { apiKey: apiKeyMatch[1], html: videoPageBody };
 }
 
 export async function fetchPlayerResponse(

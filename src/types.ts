@@ -13,6 +13,8 @@ export interface TranscriptConfig {
 	userAgent?: string;
 	cacheTTL?: number;
 	includeMetadata?: boolean;
+	debug?: boolean;
+	debugDir?: string;
 	videoFetch?: (params: FetchParams) => Promise<Response>;
 	transcriptFetch?: (params: FetchParams) => Promise<Response>;
 	playerFetch?: (params: FetchParams) => Promise<Response>;

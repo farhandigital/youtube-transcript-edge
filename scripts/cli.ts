@@ -32,6 +32,8 @@ Options:
   --format <json|srt|vtt|text>   Output format  (default: text)
   --lang   <code>                Language code  (default: auto-detect)
   --metadata                     Include video metadata in the output
+  --debug                        Save debug files to organized directory
+  --debug-dir <path>             Debug directory (default: ./debug)
   --copy, -c                     Copy the output to the clipboard
   --help, -h                     Show this help message
 
@@ -40,6 +42,8 @@ Examples:
   bun scripts/cli.ts dQw4w9WgXcQ --format srt
   bun scripts/cli.ts dQw4w9WgXcQ --format json --metadata
   bun scripts/cli.ts dQw4w9WgXcQ --lang fr
+  bun scripts/cli.ts dQw4w9WgXcQ --debug
+  bun scripts/cli.ts dQw4w9WgXcQ --debug --debug-dir /tmp/yt-debug
   bun scripts/cli.ts dQw4w9WgXcQ --copy
 `.trim();
 
@@ -50,6 +54,8 @@ function parseArgs(argv: string[]): {
 	metadata: boolean;
 	help: boolean;
 	copy: boolean;
+	debug: boolean;
+	debugDir: string;
 } {
 	const args = argv.slice(2); // strip "bun" and script path
 	let videoId: string | undefined;
@@ -58,6 +64,8 @@ function parseArgs(argv: string[]): {
 	let metadata = false;
 	let help = false;
 	let copy = false;
+	let debug = false;
+	let debugDir = './debug';
 
 	for (let i = 0; i < args.length; i++) {
 		const arg = args[i];
@@ -66,6 +74,15 @@ function parseArgs(argv: string[]): {
 			help = true;
 		} else if (arg === '--copy' || arg === '-c') {
 			copy = true;
+		} else if (arg === '--debug') {
+			debug = true;
+		} else if (arg === '--debug-dir') {
+			const value = args[++i];
+			if (!value) {
+				console.error('Error: --debug-dir requires a path');
+				process.exit(1);
+			}
+			debugDir = value;
 		} else if (arg === '--metadata') {
 			metadata = true;
 		} else if (arg === '--format') {
@@ -92,12 +109,13 @@ function parseArgs(argv: string[]): {
 		}
 	}
 
-	return { videoId, format, lang, metadata, help, copy };
+	return { videoId, format, lang, metadata, help, copy, debug, debugDir };
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-const { videoId, format, lang, metadata, help, copy } = parseArgs(process.argv);
+const { videoId, format, lang, metadata, help, copy, debug, debugDir } =
+	parseArgs(process.argv);
 
 if (help) {
 	console.log(HELP);
@@ -114,6 +132,7 @@ const config: TranscriptConfig = {
 	format,
 	...(lang ? { lang } : {}),
 	...(metadata ? { includeMetadata: true } : {}),
+	...(debug ? { debug: true, debugDir } : {}),
 };
 
 try {

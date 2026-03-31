@@ -29,3 +29,9 @@ yarn-error.log*
 
 # pipeline debug output
 pipeline-debug/
+
+# Debug directories
+debug/
+pipeline-debug/
+error-pipeline-debug/
+

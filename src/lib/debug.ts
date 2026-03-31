@@ -78,3 +78,44 @@ export class DebugWriter {
 		return this.baseDir;
 	}
 }
+/**
+ * Debug handler that either writes files or does nothing based on enabled state.
+ * This eliminates the need for `if (debugWriter)` checks throughout the code.
+ */
+export class DebugHandler {
+	private writer: DebugWriter | null;
+
+	constructor(videoId: string, baseDir?: string, enabled: boolean = false) {
+		this.writer = enabled ? new DebugWriter(videoId, baseDir) : null;
+	}
+
+	/**
+	 * Write a debug file if debug mode is enabled
+	 */
+	async write(filename: string, content: string | Buffer): Promise<void> {
+		if (!this.writer) return;
+		await this.writer.write(filename, content);
+	}
+
+	/**
+	 * Write JSON debug file if debug mode is enabled
+	 */
+	async writeJson(filename: string, data: unknown): Promise<void> {
+		if (!this.writer) return;
+		await this.writer.writeJson(filename, data);
+	}
+
+	/**
+	 * Get the video directory path (returns empty string if debug disabled)
+	 */
+	getVideoDir(): string {
+		return this.writer?.getVideoDir() ?? '';
+	}
+
+	/**
+	 * Check if debug mode is enabled
+	 */
+	isEnabled(): boolean {
+		return this.writer !== null;
+	}
+}

@@ -3,7 +3,7 @@ import {
 	extractCaptionTracks,
 	selectTrack,
 } from './lib/caption-track';
-import { DebugWriter } from './lib/debug';
+import { DebugHandler } from './lib/debug';
 import {
 	jsonTranscriptToPlaintext,
 	jsonTranscriptToSrt,
@@ -48,54 +48,46 @@ export async function fetchTranscript(
 	const identifier = retrieveVideoId(videoId);
 	const lang = config?.lang;
 
-	// Initialize debug writer if debug mode is enabled
-	const debugWriter = config?.debug
-		? new DebugWriter(identifier, config?.debugDir ?? './debug')
-		: null;
+	// Initialize debug handler (no-op if debug disabled)
+	const debug = new DebugHandler(
+		identifier,
+		config?.debugDir ?? './debug',
+		config?.debug ?? false,
+	);
 
 	const { apiKey, html: watchPageHtml } = await fetchApiKey(identifier, config);
 	const playerJson = await fetchPlayerResponse(identifier, apiKey, config);
 
-	if (debugWriter) {
-		await debugWriter.write('00-watch-page.html', watchPageHtml);
-		await debugWriter.writeJson('01-player-response.json', playerJson);
-	}
+	await debug.write('00-watch-page.html', watchPageHtml);
+	await debug.writeJson('01-player-response.json', playerJson);
 
 	const tracks = extractCaptionTracks(playerJson, identifier);
 
-	if (debugWriter) {
-		await debugWriter.writeJson('02-caption-tracks.json', {
-			count: tracks.length,
-			tracks,
-		});
-	}
+	await debug.writeJson('02-caption-tracks.json', {
+		count: tracks.length,
+		tracks,
+	});
 
 	const track = selectTrack(tracks, lang, identifier);
 
-	if (debugWriter) {
-		await debugWriter.writeJson('03-selected-track.json', track);
-	}
+	await debug.writeJson('03-selected-track.json', track);
 
 	const transcriptUrl = buildTranscriptUrl(track, identifier);
 	const xml = await fetchTranscriptXml(transcriptUrl, identifier, config);
 
-	if (debugWriter) {
-		await debugWriter.write('04-transcript.xml', xml);
-	}
+	await debug.write('04-transcript.xml', xml);
 
 	const transcript = parseTranscriptXml(xml, identifier);
 
-	if (debugWriter) {
-		await debugWriter.writeJson('05-parsed-transcript.json', transcript);
-	}
+	await debug.writeJson('05-parsed-transcript.json', transcript);
 
 	// Extract metadata early for debug output
 	const metadata = config?.includeMetadata
 		? extractVideoMetadata(playerJson, identifier)
 		: undefined;
 
-	if (debugWriter && metadata) {
-		await debugWriter.writeJson('06-metadata.json', metadata);
+	if (metadata) {
+		await debug.writeJson('06-metadata.json', metadata);
 	}
 
 	// Generate all formats for debug output
@@ -104,25 +96,25 @@ export async function fetchTranscript(
 	const vttOutput = jsonTranscriptToVtt(transcript);
 	const textOutput = jsonTranscriptToPlaintext(transcript);
 
-	if (debugWriter) {
-		await debugWriter.writeJson('08-output.json', jsonOutput);
-		await debugWriter.write('09-output.srt', srtOutput);
-		await debugWriter.write('10-output.vtt', vttOutput);
-		await debugWriter.write('11-output.txt', textOutput);
+	await debug.writeJson('08-output.json', jsonOutput);
+	await debug.write('09-output.srt', srtOutput);
+	await debug.write('10-output.vtt', vttOutput);
+	await debug.write('11-output.txt', textOutput);
 
-		if (metadata) {
-			const yamlMetadata = metadataObjToYaml(metadata);
-			await debugWriter.write(
-				'12-output-text-with-metadata.txt',
-				`${yamlMetadata}\n\n${textOutput}`,
-			);
-			await debugWriter.writeJson('13-output-json-with-metadata.json', {
-				transcript: jsonOutput,
-				metadata,
-			});
-		}
+	if (metadata) {
+		const yamlMetadata = metadataObjToYaml(metadata);
+		await debug.write(
+			'12-output-text-with-metadata.txt',
+			`${yamlMetadata}\n\n${textOutput}`,
+		);
+		await debug.writeJson('13-output-json-with-metadata.json', {
+			transcript: jsonOutput,
+			metadata,
+		});
+	}
 
-		console.error(`📁 Debug files saved to: ${debugWriter.getVideoDir()}`);
+	if (debug.isEnabled()) {
+		console.error(`📁 Debug files saved to: ${debug.getVideoDir()}`);
 	}
 
 	// Handle format conversion
@@ -156,7 +148,7 @@ export async function fetchTranscript(
 }
 
 export * from './errors';
-export { DebugWriter } from './lib/debug';
+export { DebugHandler, DebugWriter } from './lib/debug';
 export type {
 	PlayerInspectionDebugResult,
 	PlayerInspectionResult,

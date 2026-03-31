@@ -1,5 +1,6 @@
 import { DEFAULT_USER_AGENT } from '../constants';
 import {
+	YoutubeTranscriptLoginRequiredError,
 	YoutubeTranscriptNotAvailableError,
 	YoutubeTranscriptTooManyRequestError,
 	YoutubeTranscriptVideoUnavailableError,
@@ -82,7 +83,14 @@ export async function fetchPlayerResponse(
 		throw new YoutubeTranscriptVideoUnavailableError(identifier);
 	}
 
-	return (await playerRes.json()) as YouTubePlayerResponse;
+	const playerJson = (await playerRes.json()) as YouTubePlayerResponse;
+
+	// Check if YouTube is asking for login (rate limiting/bot detection)
+	if (playerJson?.playabilityStatus?.status === 'LOGIN_REQUIRED') {
+		throw new YoutubeTranscriptLoginRequiredError(identifier);
+	}
+
+	return playerJson;
 }
 
 export async function fetchTranscriptXml(

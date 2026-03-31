@@ -43,6 +43,18 @@ export class YoutubeTranscriptNotAvailableError extends Error {
 	}
 }
 
+export class YoutubeTranscriptLoginRequiredError extends Error {
+	public readonly videoId: string;
+
+	constructor(videoId: string) {
+		super(
+			`YouTube is asking you to sign in to confirm you're not a bot for video with ID "${videoId}". This typically happens when YouTube detects too many requests. Please try again later or reduce the frequency of requests.`,
+		);
+		this.name = 'YoutubeTranscriptLoginRequiredError';
+		this.videoId = videoId;
+	}
+}
+
 export class YoutubeTranscriptNotAvailableLanguageError extends Error {
 	public readonly videoId: string;
 	public readonly lang: string;

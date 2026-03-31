@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 export interface DebugConfig {
@@ -8,42 +8,55 @@ export interface DebugConfig {
 
 /**
  * Manages debug file writes in an organized directory structure.
- * Structure: baseDir/videoId/YYYY-MM-DDTHH-mm-ss-SSSZ.<filename>
+ * Structure: baseDir/videoId/runNumber/<filename>
+ * Each run gets its own numbered folder (1, 2, 3, etc.)
  */
 export class DebugWriter {
 	private baseDir: string;
 	private videoId: string;
-	private timestamp: string;
+	private runNumber: number = 0;
 	private videoDir: string;
+	private runDir: string = '';
 
 	constructor(videoId: string, baseDir: string = 'debug') {
 		this.videoId = videoId;
 		this.baseDir = baseDir;
-		this.timestamp = new Date()
-			.toISOString()
-			.replace(/:/g, '-')
-			.replace('.', '-');
 		this.videoDir = path.join(this.baseDir, this.videoId);
 	}
 
 	/**
-	 * Ensure the video directory exists
+	 * Get the next run number by finding the highest existing numbered folder
+	 */
+	private async getNextRunNumber(): Promise<number> {
+		try {
+			const entries = await readdir(this.videoDir, { withFileTypes: true });
+			const folders = entries.filter((e) => e.isDirectory());
+			const numbers = folders
+				.map((f) => parseInt(f.name, 10))
+				.filter((n) => !Number.isNaN(n));
+			return Math.max(0, ...numbers) + 1;
+		} catch {
+			// Directory doesn't exist yet
+			return 1;
+		}
+	}
+
+	/**
+	 * Ensure the run directory exists
 	 */
 	private async ensureDir(): Promise<void> {
-		await mkdir(this.videoDir, { recursive: true });
+		if (this.runNumber === 0) {
+			this.runNumber = await this.getNextRunNumber();
+		}
+		this.runDir = path.join(this.videoDir, this.runNumber.toString());
+		await mkdir(this.runDir, { recursive: true });
 	}
 
 	/**
 	 * Get the full file path for a debug file
 	 */
 	private getFilePath(filename: string): string {
-		// Extract extension
-		const ext = path.extname(filename);
-		const nameWithoutExt = path.basename(filename, ext);
-		return path.join(
-			this.videoDir,
-			`${this.timestamp}.${nameWithoutExt}${ext}`,
-		);
+		return path.join(this.runDir, filename);
 	}
 
 	/**

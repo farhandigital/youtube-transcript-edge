@@ -1,3 +1,4 @@
+import { YoutubeTranscriptLoginRequiredError } from './errors';
 import {
 	buildTranscriptUrl,
 	extractCaptionTracks,
@@ -59,6 +60,12 @@ export async function fetchTranscript(
 	const playerJson = await fetchPlayerResponse(identifier, apiKey, config);
 	await debug.write('00-watch-page.html', watchPageHtml);
 	await debug.writeJson('01-player-response.json', playerJson);
+
+	// Check if YouTube is asking for login (rate limiting/bot detection)
+	// Do this AFTER saving debug data so the response is captured
+	if (playerJson?.playabilityStatus?.status === 'LOGIN_REQUIRED') {
+		throw new YoutubeTranscriptLoginRequiredError(identifier);
+	}
 
 	const tracks = extractCaptionTracks(playerJson, identifier);
 	await debug.writeJson('02-caption-tracks.json', {

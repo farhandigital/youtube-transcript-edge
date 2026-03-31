@@ -57,28 +57,23 @@ export async function fetchTranscript(
 
 	const { apiKey, html: watchPageHtml } = await fetchApiKey(identifier, config);
 	const playerJson = await fetchPlayerResponse(identifier, apiKey, config);
-
 	await debug.write('00-watch-page.html', watchPageHtml);
 	await debug.writeJson('01-player-response.json', playerJson);
 
 	const tracks = extractCaptionTracks(playerJson, identifier);
-
 	await debug.writeJson('02-caption-tracks.json', {
 		count: tracks.length,
 		tracks,
 	});
 
 	const track = selectTrack(tracks, lang, identifier);
-
 	await debug.writeJson('03-selected-track.json', track);
 
 	const transcriptUrl = buildTranscriptUrl(track, identifier);
 	const xml = await fetchTranscriptXml(transcriptUrl, identifier, config);
-
 	await debug.write('04-transcript.xml', xml);
 
 	const transcript = parseTranscriptXml(xml, identifier);
-
 	await debug.writeJson('05-parsed-transcript.json', transcript);
 
 	// Extract metadata early for debug output
